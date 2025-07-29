@@ -1,0 +1,39 @@
+
+courseID : 687b6402b2db31aff6ba089c
+"student": 687b601d986ad74fb1be6ae6
+token : eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4N2I1ZTIyOTQ3YWVlYjYwYWNiZmRmZSIsInJvbGUiOiJzdHVkZW50IiwibmFtZSI6InJhemEiLCJpYXQiOjE3NTI5MTU1MjYsImV4cCI6MTc1MzAwMTkyNn0.SMu8ac7BVulsVnpluQPS9m7pAK-wgtMVfC2l--otESA
+
+authontication: 
+post : http://localhost:5000/api/auth/register
+post: http://localhost:5000/api/auth/login
+get : http://localhost:5000/api/auth/getUsers
+
+teacher: 
+token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4N2RmMjU3MWQ0NTM5NThkZGI0MTY4ZSIsInJvbGUiOiJ0ZWFjaGVyIiwibmFtZSI6InN5ZWQgYWxpIiwiaWF0IjoxNzUzMDg0NjE3LCJleHAiOjE3NTMxNzEwMTd9.Du_ZhFRVhSUSDfp1wtsKYnCQc85zo4nAcGhD1fkclTI
+
+courses: 
+get: http://localhost:5000/api/courses/getCourses
+post : http://localhost:5000/api/courses/createCourse
+
+
+Application: 
+post: http://localhost:5000/api/applications/submitApplication
+get : http://localhost:5000/api/applications/getApplications
+
+
+Announcements: 
+post : http://localhost:5000/api/announcement/createAnnouncement 
+get : http://localhost:5000/api/announcement/getAnnouncements
+
+Grades: 
+
+post: http://localhost:5000/api/grades/assignGrade
+get: http://localhost:5000/api/grades/getGrades
+
+attendance  : 
+   post : http://localhost:5000/api/attendance/markAttendance
+
+dashboard(admin role) : 
+http://localhost:5000/api/dashboard/getDashboard
+    
+
