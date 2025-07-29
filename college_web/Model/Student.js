@@ -18,7 +18,6 @@ const studentSchema = mongoose.Schema(
     },
     semester: {
       type: String,
-     
     },
     contact: {
       type: String,
@@ -28,7 +27,12 @@ const studentSchema = mongoose.Schema(
       type: String,
       required: true,
     },
- 
+    courses: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Course",
+      },
+    ],
   },
   { timestamps: true }
 );

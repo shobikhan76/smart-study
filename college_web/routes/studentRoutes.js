@@ -3,7 +3,9 @@ const router = express.Router();
 
 const {
   createStudent,
-  getAllStudents
+  getAllStudents,
+  updateStudent,
+  deleteStudent,
 } = require('../controllers/studentController');
 
 const { verifyToken } = require('../middleware/authMiddleware');
@@ -14,5 +16,9 @@ router.post('/create', verifyToken, checkRole('admin'), createStudent);
 
 // ✅ Admins and teachers can view all students
 router.get('/', verifyToken, checkRole('admin', 'teacher'), getAllStudents);
+
+// ✅ Only admins can update or delete students
+router.put('/:id', verifyToken, checkRole('admin'), updateStudent);
+router.delete('/:id', verifyToken, checkRole('admin'), deleteStudent);
 
 module.exports = router;

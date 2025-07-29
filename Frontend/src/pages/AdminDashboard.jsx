@@ -53,6 +53,14 @@ const Sidebar = ({ selected, setSelected }) => (
     >
       Grades
     </button>
+    <button
+      className={`text-left px-4 py-2 rounded ${
+        selected === "students" ? "bg-blue-600" : "hover:bg-blue-700"
+      }`}
+      onClick={() => setSelected("students")}
+    >
+      Manage Students
+    </button>
   </div>
 );
 
@@ -112,6 +120,19 @@ const AdminDashboard = () => {
     totalMarks: "",
     obtainedMarks: "",
   });
+  const [students, setStudents] = useState([]);
+  const [studentForm, setStudentForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    registrationNumber: "",
+    department: "",
+    semester: "",
+    contact: "",
+    address: "",
+    courses: [],
+  });
+  const [editingStudent, setEditingStudent] = useState(null);
   const token = localStorage.getItem("token");
 
   // Fetch data on mount or tab change
@@ -122,6 +143,10 @@ const AdminDashboard = () => {
     if (selected === "applications") fetchApplications();
     if (selected === "results") fetchResults();
     if (selected === "grades") fetchGrades();
+    if (selected === "students") {
+      fetchStudents();
+      fetchCourses();
+    }
     // eslint-disable-next-line
   }, [selected]);
 
@@ -441,6 +466,97 @@ const AdminDashboard = () => {
   // Delete grade
   // (Assuming you have a delete route for grades)
   // const handleDeleteGrade = async (id) => { ... }
+
+  // Fetch all students
+  const fetchStudents = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/students", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setStudents(res.data);
+    } catch {
+      setMessage("Failed to fetch students.");
+    }
+  };
+
+  // Student form handlers
+  const handleStudentFormChange = (e) => {
+    const { name, value, options } = e.target;
+    if (name === "courses" && options) {
+      const values = Array.from(options)
+        .filter((o) => o.selected)
+        .map((o) => o.value);
+      setStudentForm({ ...studentForm, courses: values });
+    } else {
+      setStudentForm({ ...studentForm, [name]: value });
+    }
+  };
+
+  const handleStudentSubmit = async (e) => {
+    e.preventDefault();
+    setMessage("");
+    try {
+      if (editingStudent) {
+        // Update student
+        await axios.put(
+          `http://localhost:5000/api/students/${editingStudent._id}`,
+          studentForm,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setMessage("Student updated successfully!");
+      } else {
+        // Create student
+        await axios.post(
+          "http://localhost:5000/api/students/create",
+          studentForm,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setMessage("Student created successfully!");
+      }
+      setStudentForm({
+        name: "",
+        email: "",
+        password: "",
+        registrationNumber: "",
+        department: "",
+        semester: "",
+        contact: "",
+        address: "",
+        courses: [],
+      });
+      setEditingStudent(null);
+      fetchStudents();
+    } catch {
+      setMessage("Failed to create or update student.");
+    }
+  };
+
+  const handleEditStudent = (student) => {
+    setEditingStudent(student);
+    setStudentForm({
+      name: student.user?.name || "",
+      email: student.user?.email || "",
+      password: "",
+      registrationNumber: student.registrationNumber,
+      department: student.department,
+      semester: student.semester,
+      contact: student.contact,
+      address: student.address,
+      courses: student.courses ? student.courses.map((c) => c._id || c) : [],
+    });
+  };
+
+  const handleDeleteStudent = async (id) => {
+    if (!window.confirm("Delete this student?")) return;
+    try {
+      await axios.delete(`http://localhost:5000/api/students/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchStudents();
+    } catch {
+      setMessage("Failed to delete student.");
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -1013,6 +1129,179 @@ const AdminDashboard = () => {
                       <td>{g.course}</td>
                       <td>{g.grade}</td>
                       <td>{g.remarks}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Students */}
+          {selected === "students" && (
+            <div>
+              <h2 className="text-xl font-semibold mb-4">
+                {editingStudent ? "Edit Student" : "Create Student"}
+              </h2>
+              <form className="mb-6 space-y-2" onSubmit={handleStudentSubmit}>
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Name"
+                  value={studentForm.name}
+                  onChange={handleStudentFormChange}
+                  className="w-full px-3 py-2 border rounded"
+                  required
+                />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  value={studentForm.email}
+                  onChange={handleStudentFormChange}
+                  className="w-full px-3 py-2 border rounded"
+                  required
+                />
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Password"
+                  value={studentForm.password}
+                  onChange={handleStudentFormChange}
+                  className="w-full px-3 py-2 border rounded"
+                  required
+                />
+                <input
+                  type="text"
+                  name="registrationNumber"
+                  placeholder="Registration Number"
+                  value={studentForm.registrationNumber}
+                  onChange={handleStudentFormChange}
+                  className="w-full px-3 py-2 border rounded"
+                  required
+                />
+                <input
+                  type="text"
+                  name="department"
+                  placeholder="Department"
+                  value={studentForm.department}
+                  onChange={handleStudentFormChange}
+                  className="w-full px-3 py-2 border rounded"
+                  required
+                />
+                <input
+                  type="text"
+                  name="semester"
+                  placeholder="Semester"
+                  value={studentForm.semester}
+                  onChange={handleStudentFormChange}
+                  className="w-full px-3 py-2 border rounded"
+                />
+                <input
+                  type="text"
+                  name="contact"
+                  placeholder="Contact"
+                  value={studentForm.contact}
+                  onChange={handleStudentFormChange}
+                  className="w-full px-3 py-2 border rounded"
+                  required
+                />
+                <input
+                  type="text"
+                  name="address"
+                  placeholder="Address"
+                  value={studentForm.address}
+                  onChange={handleStudentFormChange}
+                  className="w-full px-3 py-2 border rounded"
+                  required
+                />
+                <select
+                  name="courses"
+                  multiple
+                  value={studentForm.courses}
+                  onChange={handleStudentFormChange}
+                  className="w-full px-3 py-2 border rounded"
+                >
+                  {courses.map((c) => (
+                    <option key={c._id} value={c._id}>
+                      {c.title} ({c.code})
+                    </option>
+                  ))}
+                </select>
+                <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                  {editingStudent ? "Update Student" : "Create Student"}
+                </button>
+                {editingStudent && (
+                  <button
+                    type="button"
+                    className="ml-2 px-4 py-2 rounded border"
+                    onClick={() => {
+                      setEditingStudent(null);
+                      setStudentForm({
+                        name: "",
+                        email: "",
+                        password: "",
+                        registrationNumber: "",
+                        department: "",
+                        semester: "",
+                        contact: "",
+                        address: "",
+                        courses: [],
+                      });
+                    }}
+                  >
+                    Cancel
+                  </button>
+                )}
+              </form>
+              <h2 className="text-lg font-semibold mb-2">All Students</h2>
+              <table className="w-full border">
+                <thead>
+                  <tr className="bg-blue-100">
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Registration #</th>
+                    <th>Department</th>
+                    <th>Semester</th>
+                    <th>Contact</th>
+                    <th>Address</th>
+                    <th>Courses</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {students.map((s) => (
+                    <tr key={s._id} className="border-t">
+                      <td>{s.user?.name || ""}</td>
+                      <td>{s.user?.email || ""}</td>
+                      <td>{s.registrationNumber}</td>
+                      <td>{s.department}</td>
+                      <td>{s.semester}</td>
+                      <td>{s.contact}</td>
+                      <td>{s.address}</td>
+                      <td>
+                        {(s.courses || []).map((c) => (
+                          <span
+                            key={c._id || c}
+                            className="inline-block bg-gray-200 px-2 py-1 rounded mr-1"
+                          >
+                            {c.title || c}
+                          </span>
+                        ))}
+                      </td>
+                      <td>
+                        <button
+                          className="text-blue-600 hover:underline mr-2"
+                          onClick={() => handleEditStudent(s)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="text-red-600 hover:underline"
+                          onClick={() => handleDeleteStudent(s._id)}
+                        >
+                          Delete
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
