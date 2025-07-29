@@ -37,14 +37,7 @@ const Sidebar = ({ selected, setSelected }) => (
     >
       Applications
     </button>
-    <button
-      className={`text-left px-4 py-2 rounded ${
-        selected === "results" ? "bg-blue-600" : "hover:bg-blue-700"
-      }`}
-      onClick={() => setSelected("results")}
-    >
-      Results
-    </button>
+    
     <button
       className={`text-left px-4 py-2 rounded ${
         selected === "grades" ? "bg-blue-600" : "hover:bg-blue-700"
@@ -187,6 +180,8 @@ const AdminDashboard = () => {
   // User handlers
   const fetchUsers = async () => {
     try {
+
+
       const res = await axios.get("http://localhost:5000/api/users", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -481,16 +476,10 @@ const AdminDashboard = () => {
 
   // Student form handlers
   const handleStudentFormChange = (e) => {
-    const { name, value, options } = e.target;
-    if (name === "courses" && options) {
-      const values = Array.from(options)
-        .filter((o) => o.selected)
-        .map((o) => o.value);
-      setStudentForm({ ...studentForm, courses: values });
-    } else {
-      setStudentForm({ ...studentForm, [name]: value });
-    }
-  };
+  const { name, value } = e.target;
+  setStudentForm({ ...studentForm, [name]: value });
+};
+
 
   const handleStudentSubmit = async (e) => {
     e.preventDefault();
@@ -521,8 +510,7 @@ const AdminDashboard = () => {
         department: "",
         semester: "",
         contact: "",
-        address: "",
-        courses: [],
+        address: ""
       });
       setEditingStudent(null);
       fetchStudents();
@@ -542,7 +530,7 @@ const AdminDashboard = () => {
       semester: student.semester,
       contact: student.contact,
       address: student.address,
-      courses: student.courses ? student.courses.map((c) => c._id || c) : [],
+      
     });
   };
 
@@ -1214,19 +1202,7 @@ const AdminDashboard = () => {
                   className="w-full px-3 py-2 border rounded"
                   required
                 />
-                <select
-                  name="courses"
-                  multiple
-                  value={studentForm.courses}
-                  onChange={handleStudentFormChange}
-                  className="w-full px-3 py-2 border rounded"
-                >
-                  {courses.map((c) => (
-                    <option key={c._id} value={c._id}>
-                      {c.title} ({c.code})
-                    </option>
-                  ))}
-                </select>
+               
                 <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
                   {editingStudent ? "Update Student" : "Create Student"}
                 </button>
