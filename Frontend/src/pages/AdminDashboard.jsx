@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import AdminAnnouncements from "../components/admin/AdminAnnouncements";
-import AdminUsers from "../components/admin/AdminUsers";
+// import AdminUsers from "../components/admin/AdminUsers";
 import AdminCourses from "../components/admin/AdminCourses";
 import AdminApplications from "../components/admin/AdminApplications";
 import AdminResults from "../components/admin/AdminResults";
-import AdminGrades from "../components/admin/AdminGrades";
+// import AdminGrades from "../components/admin/AdminGrades";
 import AdminStudents from "../components/admin/AdminStudents";
+import AdminTeachers from "../components/admin/AdminTeachers";
 
 // Sidebar for navigation
 const Sidebar = ({ selected, setSelected }) => (
@@ -20,14 +21,14 @@ const Sidebar = ({ selected, setSelected }) => (
     >
       Announcements
     </button>
-    <button
+    {/* <button
       className={`text-left px-4 py-2 rounded ${
         selected === "users" ? "bg-blue-600" : "hover:bg-blue-700"
       }`}
       onClick={() => setSelected("users")}
     >
       Manage Users
-    </button>
+    </button> */}
     <button
       className={`text-left px-4 py-2 rounded ${
         selected === "courses" ? "bg-blue-600" : "hover:bg-blue-700"
@@ -38,6 +39,14 @@ const Sidebar = ({ selected, setSelected }) => (
     </button>
     <button
       className={`text-left px-4 py-2 rounded ${
+        selected === "teachers" ? "bg-blue-600" : "hover:bg-blue-700"
+      }`}
+      onClick={() => setSelected("teachers")}
+    >
+      Manage Teachers
+    </button>
+    <button
+      className={`text-left px-4 py-2 rounded ${
         selected === "applications" ? "bg-blue-600" : "hover:bg-blue-700"
       }`}
       onClick={() => setSelected("applications")}
@@ -45,14 +54,14 @@ const Sidebar = ({ selected, setSelected }) => (
       Applications
     </button>
 
-    <button
+    {/* <button
       className={`text-left px-4 py-2 rounded ${
         selected === "grades" ? "bg-blue-600" : "hover:bg-blue-700"
       }`}
       onClick={() => setSelected("grades")}
     >
       Grades
-    </button>
+    </button> */}
     <button
       className={`text-left px-4 py-2 rounded ${
         selected === "students" ? "bg-blue-600" : "hover:bg-blue-700"
@@ -86,6 +95,7 @@ const AdminDashboard = () => {
     code: "",
     department: "",
   });
+  const [editingCourse, setEditingCourse] = useState(null);
   const [courseAssignForm, setCourseAssignForm] = useState({
     courseId: "",
     students: [],
@@ -112,6 +122,203 @@ const AdminDashboard = () => {
   });
   // Removed unused editingResult and resultForm state
   const [students, setStudents] = useState([]);
+  const [studentForm, setStudentForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    registrationNumber: "",
+    department: "",
+    semester: "",
+    contact: "",
+    address: "",
+    courses: [],
+  });
+  const [editingStudent, setEditingStudent] = useState(null);
+
+  // Teacher state
+  const [teachers, setTeachers] = useState([]);
+  const [teacherForm, setTeacherForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    designation: "",
+    department: "",
+    contact: "",
+  });
+  const [editingTeacher, setEditingTeacher] = useState(null);
+
+  // Teacher handlers
+  const fetchTeachers = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/teachers", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setTeachers(res.data);
+    } catch {
+      setMessage("Failed to fetch teachers.");
+    }
+  };
+  const handleTeacherFormChange = (e) => {
+    setTeacherForm({ ...teacherForm, [e.target.name]: e.target.value });
+  };
+  const handleTeacherSubmit = async (e) => {
+    e.preventDefault();
+    setMessage("");
+    try {
+      let userId = teacherForm.user;
+      if (!editingTeacher) {
+        // Register user with role teacher
+        const userRes = await axios.post(
+          "http://localhost:5000/api/users/admin-create-user",
+          {
+            name: teacherForm.name,
+            email: teacherForm.email,
+            password: teacherForm.password,
+            role: "teacher",
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        userId =
+          userRes.data.newUser?._id ||
+          userRes.data.newAdmin?._id ||
+          userRes.data.user?._id;
+      }
+      // Create or update teacher profile
+      if (editingTeacher) {
+        await axios.put(
+          `http://localhost:5000/api/teachers/${editingTeacher._id}`,
+          {
+            designation: teacherForm.designation,
+            department: teacherForm.department,
+            contact: teacherForm.contact,
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setMessage("Teacher updated!");
+      } else {
+        await axios.post(
+          "http://localhost:5000/api/teachers/create",
+          {
+            user: userId,
+            designation: teacherForm.designation,
+            department: teacherForm.department,
+            contact: teacherForm.contact,
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setMessage("Teacher created!");
+      }
+      setTeacherForm({
+        name: "",
+        email: "",
+        password: "",
+        designation: "",
+        department: "",
+        contact: "",
+      });
+      setEditingTeacher(null);
+      fetchTeachers();
+    } catch {
+      setMessage("Failed to create or update teacher.");
+    }
+  };
+  const handleEditTeacher = (teacher) => {
+    setEditingTeacher(teacher);
+    setTeacherForm({
+      user: teacher.user?._id || teacher.user || "",
+      designation: teacher.designation || "",
+      department: teacher.department || "",
+      contact: teacher.contact || "",
+    });
+  };
+  const handleDeleteTeacher = async (id) => {
+    if (!window.confirm("Delete this teacher?")) return;
+    try {
+      await axios.delete(`http://localhost:5000/api/teachers/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchTeachers();
+    } catch {
+      setMessage("Failed to delete teacher.");
+    }
+  };
+  // Student handlers
+  const fetchStudents = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/students", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setStudents(res.data);
+    } catch {
+      setMessage("Failed to fetch students.");
+    }
+  };
+  const handleStudentFormChange = (e) => {
+    setStudentForm({ ...studentForm, [e.target.name]: e.target.value });
+  };
+  const handleStudentSubmit = async (e) => {
+    e.preventDefault();
+    setMessage("");
+    try {
+      if (editingStudent) {
+        await axios.put(
+          `http://localhost:5000/api/students/${editingStudent._id}`,
+          studentForm,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setMessage("Student updated!");
+      } else {
+        await axios.post(
+          "http://localhost:5000/api/students/create",
+          studentForm,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setMessage("Student created!");
+      }
+      setStudentForm({
+        name: "",
+        email: "",
+        password: "",
+        registrationNumber: "",
+        department: "",
+        semester: "",
+        contact: "",
+        address: "",
+        courses: [],
+      });
+      setEditingStudent(null);
+      fetchStudents();
+    } catch {
+      setMessage("Failed to create or update student.");
+    }
+  };
+  const handleEditStudent = (student) => {
+    setEditingStudent(student);
+    setStudentForm({
+      name: student.user?.name || "",
+      email: student.user?.email || "",
+      password: "",
+      registrationNumber: student.registrationNumber || "",
+      department: student.department || "",
+      semester: student.semester || "",
+      contact: student.contact || "",
+      address: student.address || "",
+      courses: student.courses || [],
+    });
+  };
+  const handleDeleteStudent = async (id) => {
+    if (!window.confirm("Delete this student?")) return;
+    try {
+      await axios.delete(`http://localhost:5000/api/students/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchStudents();
+    } catch {
+      setMessage("Failed to delete student.");
+    }
+  };
   // Removed unused studentForm and editingStudent state
   const token = localStorage.getItem("token");
 
@@ -121,6 +328,7 @@ const AdminDashboard = () => {
     if (selected === "users") fetchUsers();
     if (selected === "courses") fetchCourses();
     if (selected === "applications") fetchApplications();
+    if (selected === "teachers") fetchTeachers();
     // eslint-disable-next-line
   }, [selected]);
 
@@ -262,6 +470,47 @@ const AdminDashboard = () => {
   };
   const handleCourseChange = (e) => {
     setCourseForm({ ...courseForm, [e.target.name]: e.target.value });
+  };
+
+  const handleEditCourse = (course) => {
+    setEditingCourse(course);
+    setCourseForm({
+      title: course.title || "",
+      code: course.code || "",
+      department: course.department || "",
+    });
+  };
+
+  const handleCourseUpdate = async (e) => {
+    e.preventDefault();
+    setMessage("");
+    try {
+      await axios.put(
+        `http://localhost:5000/api/courses/${editingCourse._id}`,
+        courseForm,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setMessage("Course updated!");
+      setEditingCourse(null);
+      setCourseForm({ title: "", code: "", department: "" });
+      fetchCourses();
+    } catch {
+      setMessage("Failed to update course.");
+    }
+  };
+
+  const handleDeleteCourse = async (id) => {
+    if (!window.confirm("Delete this course?")) return;
+    try {
+      await axios.delete(`http://localhost:5000/api/courses/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchCourses();
+    } catch {
+      setMessage("Failed to delete course.");
+    }
   };
   const handleCourseSubmit = async (e) => {
     e.preventDefault();
@@ -417,6 +666,7 @@ const AdminDashboard = () => {
               handleDeleteAnnouncement={handleDeleteAnnouncement}
             />
           )}
+          {/*
           {selected === "users" && (
             <AdminUsers
               users={users}
@@ -428,17 +678,72 @@ const AdminDashboard = () => {
               handleDeleteUser={handleDeleteUser}
             />
           )}
+          */}
           {selected === "courses" && (
-            <AdminCourses
-              courses={courses}
-              courseForm={courseForm}
-              courseAssignForm={courseAssignForm}
-              users={users}
-              handleCourseChange={handleCourseChange}
-              handleCourseSubmit={handleCourseSubmit}
-              handleCourseAssignChange={handleCourseAssignChange}
-              handleAssignToCourse={handleAssignToCourse}
-            />
+            <>
+              {editingCourse && (
+                <div className="mb-6 bg-blue-50 p-4 rounded">
+                  <h3 className="font-bold mb-2">Edit Course</h3>
+                  <form className="space-y-2" onSubmit={handleCourseUpdate}>
+                    <input
+                      type="text"
+                      name="title"
+                      placeholder="Course Title"
+                      value={courseForm.title}
+                      onChange={handleCourseChange}
+                      className="w-full px-3 py-2 border rounded"
+                      required
+                    />
+                    <input
+                      type="text"
+                      name="code"
+                      placeholder="Course Code"
+                      value={courseForm.code}
+                      onChange={handleCourseChange}
+                      className="w-full px-3 py-2 border rounded"
+                      required
+                    />
+                    <input
+                      type="text"
+                      name="department"
+                      placeholder="Department"
+                      value={courseForm.department}
+                      onChange={handleCourseChange}
+                      className="w-full px-3 py-2 border rounded"
+                      required
+                    />
+                    <div className="flex gap-2 mt-2">
+                      <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                        Update
+                      </button>
+                      <button
+                        type="button"
+                        className="px-4 py-2 rounded border"
+                        onClick={() => {
+                          setEditingCourse(null);
+                          setCourseForm({
+                            title: "",
+                            code: "",
+                            department: "",
+                          });
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+              <AdminCourses
+                courses={courses}
+                courseForm={courseForm}
+                handleCourseChange={handleCourseChange}
+                handleCourseSubmit={handleCourseSubmit}
+                handleEditCourse={handleEditCourse}
+                handleDeleteCourse={handleDeleteCourse}
+                message={message}
+              />
+            </>
           )}
           {selected === "applications" && (
             <AdminApplications
@@ -452,9 +757,33 @@ const AdminDashboard = () => {
             />
           )}
           {selected === "results" && <AdminResults results={results} />}
-          {selected === "grades" && <AdminGrades grades={grades} />}
+          {/* {selected === "grades" && <AdminGrades grades={grades} />} */}
+          {selected === "teachers" && (
+            <AdminTeachers
+              teachers={teachers}
+              teacherForm={teacherForm}
+              handleTeacherFormChange={handleTeacherFormChange}
+              handleTeacherSubmit={handleTeacherSubmit}
+              handleEditTeacher={handleEditTeacher}
+              handleDeleteTeacher={handleDeleteTeacher}
+              editingTeacher={editingTeacher}
+              setEditingTeacher={setEditingTeacher}
+              setTeacherForm={setTeacherForm}
+              message={message}
+            />
+          )}
           {selected === "students" && (
-            <AdminStudents students={students} courses={courses} />
+            <AdminStudents
+              students={students}
+              studentForm={studentForm}
+              handleStudentFormChange={handleStudentFormChange}
+              handleStudentSubmit={handleStudentSubmit}
+              handleEditStudent={handleEditStudent}
+              handleDeleteStudent={handleDeleteStudent}
+              editingStudent={editingStudent}
+              setEditingStudent={setEditingStudent}
+              message={message}
+            />
           )}
         </div>
       </div>

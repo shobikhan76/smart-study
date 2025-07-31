@@ -186,13 +186,25 @@ const AdminApplications = ({
               <td>
                 <button
                   className="text-blue-600 hover:underline mr-2"
-                  onClick={() => handleEditApplication(a)}
+                  onClick={() => {
+                    if (handleEditApplication) {
+                      handleEditApplication(a);
+                    } else {
+                      alert("Edit handler not provided");
+                    }
+                  }}
                 >
                   Edit
                 </button>
                 <button
                   className="text-red-600 hover:underline"
-                  onClick={() => handleDeleteApplication(a._id)}
+                  onClick={() => {
+                    if (handleDeleteApplication) {
+                      handleDeleteApplication(a._id);
+                    } else {
+                      alert("Delete handler not provided");
+                    }
+                  }}
                 >
                   Delete
                 </button>
