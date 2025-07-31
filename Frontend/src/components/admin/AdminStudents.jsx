@@ -131,13 +131,13 @@ const AdminStudents = ({
       <tbody>
         {students.map((s) => (
           <tr key={s._id} className="border-t">
-            <td>{s.user?.name || ""}</td>
-            <td>{s.user?.email || ""}</td>
-            <td>{s.registrationNumber}</td>
-            <td>{s.department}</td>
-            <td>{s.semester}</td>
-            <td>{s.contact}</td>
-            <td>{s.address}</td>
+            <td>{s.user?.name || s.name || ""}</td>
+            <td>{s.user?.email || s.email || ""}</td>
+            <td>{s.registrationNumber || ""}</td>
+            <td>{s.department || ""}</td>
+            <td>{s.semester || ""}</td>
+            <td>{s.contact || ""}</td>
+            <td>{s.address || ""}</td>
             <td>
               {(s.courses || []).map((c) => (
                 <span

@@ -40,6 +40,7 @@ app.use("/api/assignments", assignmentRoutes); // ✅ New linenp
 app.use("/api/student-profiles", require("./routes/studentProfileRoutes"));
 app.use("/api/teachers", teacherRoutes);
 app.use("/api/students", studentRoutes);
+app.use('/api/course-offered', require('./routes/courseOfferedRoutes'));
 // Default route
 app.get("/", (req, res) => {
   res.send("Hello World");

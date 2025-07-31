@@ -8,6 +8,7 @@ import AdminResults from "../components/admin/AdminResults";
 // import AdminGrades from "../components/admin/AdminGrades";
 import AdminStudents from "../components/admin/AdminStudents";
 import AdminTeachers from "../components/admin/AdminTeachers";
+import AdminCoursesOffered from "../components/admin/AdminCoursesOffered";
 
 // Sidebar for navigation
 const Sidebar = ({ selected, setSelected }) => (
@@ -44,6 +45,14 @@ const Sidebar = ({ selected, setSelected }) => (
       onClick={() => setSelected("teachers")}
     >
       Manage Teachers
+    </button>
+    <button
+      className={`text-left px-4 py-2 rounded ${
+        selected === "coursesOffered" ? "bg-blue-600" : "hover:bg-blue-700"
+      }`}
+      onClick={() => setSelected("coursesOffered")}
+    >
+      Manage Courses Offered
     </button>
     <button
       className={`text-left px-4 py-2 rounded ${
@@ -771,6 +780,9 @@ const AdminDashboard = () => {
               setTeacherForm={setTeacherForm}
               message={message}
             />
+          )}
+          {selected === "coursesOffered" && (
+            <AdminCoursesOffered token={token} />
           )}
           {selected === "students" && (
             <AdminStudents
