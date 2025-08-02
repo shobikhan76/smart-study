@@ -11,7 +11,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import ApplicantDashboard from "./pages/ApplicantDashboard.jsx";
-
+// import LMSLogin from "./pages/LMSLogin";
 function App() {
   return (
     <BrowserRouter>
@@ -19,7 +19,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/Apply" element={<Signup />} />
         <Route path="/LMS" element={<LMSLogin />} />
-        <Route path="/about" element={<About />} />
+        <Route path="/about" element={< About/>} />
         <Route path="/news" element={<News />} />
         <Route path="/lecturers" element={<Lecturers />} />
           

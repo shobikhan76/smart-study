@@ -1,19 +1,19 @@
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import heroimage2 from "../assets/uneza-bg.jpg";
+import heroimage2 from "../assets/GIK.jpg";
 
 const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage(""); // reset message before request
+    setMessage("");
 
     try {
       const response = await axios.post("http://localhost:5000/api/users/register", {
@@ -23,99 +23,121 @@ const Signup = () => {
       });
 
       if (response.data.success) {
-        navigate("/login");
+        navigate("/LMSLogin");
       }
 
       setMessage(response.data.message || "Registered successfully!");
     } catch (error) {
-      if (error.response && error.response.data.message) {
-        setMessage(error.response.data.message);
-      } else {
-        setMessage("Something went wrong. Please try again.");
-      }
+      setMessage(
+        error.response?.data?.message || "Something went wrong. Please try again."
+      );
     }
   };
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center bg-cover bg-center relative"
+      className="min-h-screen bg-cover bg-center relative flex items-center justify-center"
       style={{ backgroundImage: `url(${heroimage2})` }}
     >
-      <div className="min-h-screen flex items-center justify-center bg-black/20 backdrop-blur-sm absolute inset-0">
-        <div className="w-full max-w-md bg-white/30 backdrop-blur-sm p-8 rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Signup</h2>
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black/60 to-transparent"></div>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
 
-          {message && (
-            <div className="mb-4 text-center text-sm text-red-500">{message}</div>
-          )}
+      {/* Form Container */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="relative w-full max-w-md p-8 rounded-2xl bg-white/20 backdrop-blur-xl shadow-2xl border border-white/30 text-white z-10"
+      >
+        <h2 className="text-3xl font-bold text-center mb-2 tracking-tight">
+          Create an Account
+        </h2>
+        <p className="text-center text-white/80 text-sm mb-6">
+          Join IESS Today
+        </p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                Name
-              </label>
-              <input
-                onChange={(e) => setName(e.target.value)}
-                type="text"
-                id="name"
-                placeholder="Enter Name"
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+        {message && (
+          <div className="mb-5 text-center text-sm bg-red-600/90 text-white py-3 px-4 rounded-lg shadow-md">
+            {message}
+          </div>
+        )}
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
-              <input
-                onChange={(e) => setEmail(e.target.value)}
-                type="email"
-                id="email"
-                placeholder="Enter Email"
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-1">
+            <label htmlFor="name" className="block text-sm font-medium">
+              Full Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your full name"
+              required
+              className="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 placeholder-white/70 text-white focus:outline-none focus:ring-2 focus:ring-blue-300 focus:bg-white/30 transition-all duration-200"
+            />
+          </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Password
-              </label>
-              <input
-                onChange={(e) => setPassword(e.target.value)}
-                type="password"
-                id="password"
-                placeholder="Enter Password"
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+          <div className="space-y-1">
+            <label htmlFor="email" className="block text-sm font-medium">
+              Email Address
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              required
+              className="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 placeholder-white/70 text-white focus:outline-none focus:ring-2 focus:ring-blue-300 focus:bg-white/30 transition-all duration-200"
+            />
+          </div>
 
-            <button
-              type="submit"
-              className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
-            >
-              Create Account
-            </button>
-          </form>
+          <div className="space-y-1">
+            <label htmlFor="password" className="block text-sm font-medium">
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Create a strong password"
+              required
+              className="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 placeholder-white/70 text-white focus:outline-none focus:ring-2 focus:ring-blue-300 focus:bg-white/30 transition-all duration-200"
+            />
+          </div>
 
-          <p className="mt-4 text-center text-sm text-gray-600">
+          <button
+            type="submit"
+            className="w-full py-3 mt-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300"
+          >
+            Create Account
+          </button>
+        </form>
+
+        <div className="mt-6 text-center space-y-3">
+          <p className="text-sm text-white/90">
             Already have an account?{" "}
-            <Link to="/login" className="text-blue-600 hover:underline">
+            <Link
+              to="/LMSLogin"
+              className="font-medium text-blue-200 hover:text-white underline transition"
+            >
               Login
             </Link>
           </p>
-
-            <p className="mt-4 text-center text-sm text-gray-600">
-            Go to Home Page{" "}
-            <Link to="/" className="text-blue-600 hover:underline">
-              Skip
+          <p className="text-xs text-white/70">
+            Or{" "}
+            <Link
+              to="/"
+              className="text-blue-200 hover:text-white hover:underline transition"
+            >
+              return to Home
             </Link>
           </p>
-       
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

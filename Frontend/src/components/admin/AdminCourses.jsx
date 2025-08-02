@@ -39,43 +39,27 @@ const AdminCourses = ({
         className="w-full px-3 py-2 border rounded"
         required
       />
-      <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+      <button className=" bg-gradient-to-r from-red-800 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">
         Create
       </button>
     </form>
     <h2 className="text-lg font-semibold mb-2">All Courses</h2>
-    <ul>
+    <ul className=" border-2 rounded-lg p-4">
       {courses.map((c) => (
-        <li
-          key={c._id}
-          className="mb-2 border-b pb-2 flex justify-between items-center"
-        >
+        <li key={c._id} className=" flex justify-between items-center border m-1 rounded-xl p-3">
           <div>
-            <span className="font-bold">{c.title}</span> ({c.code}) -{" "}
-            {c.department}
+            <span className="font-bold">{c.title}</span> ({c.code}) - {c.department}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2   ">
             <button
-              className="text-blue-600 hover:underline"
-              onClick={() => {
-                if (typeof handleEditCourse === "function") {
-                  handleEditCourse(c);
-                } else {
-                  alert("Edit handler not provided");
-                }
-              }}
+              className=" bg-gradient-to-r from-blue-800 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+              onClick={() => handleEditCourse(c)}
             >
               Edit
             </button>
             <button
-              className="text-red-600 hover:underline"
-              onClick={() => {
-                if (typeof handleDeleteCourse === "function") {
-                  handleDeleteCourse(c._id);
-                } else {
-                  alert("Delete handler not provided");
-                }
-              }}
+              className=" bg-gradient-to-r from-red-800 bg-red-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+              onClick={() => handleDeleteCourse(c._id)}
             >
               Delete
             </button>
