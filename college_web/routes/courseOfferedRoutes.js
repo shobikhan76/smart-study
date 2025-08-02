@@ -27,5 +27,20 @@ router.delete(
   checkRole("admin"),
   ctrl.deleteCourseOffered
 );
+// Add this route for teachers to get their assigned courses
+router.get(
+  "/my-courses",
+  verifyToken,
+  checkRole("teacher"),
+  ctrl.getMyCoursesOffered
+);
+
+// Add this route for students to get their assigned courses
+router.get(
+  "/my-courses-student",
+  verifyToken,
+  checkRole("student"),
+  ctrl.getMyStudentCoursesOffered
+);
 
 module.exports = router;

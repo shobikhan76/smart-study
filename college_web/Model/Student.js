@@ -33,6 +33,12 @@ const studentSchema = mongoose.Schema(
         ref: "Course",
       },
     ],
+    offeredCourses: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "CourseOffered",
+      },
+    ],
   },
   { timestamps: true }
 );

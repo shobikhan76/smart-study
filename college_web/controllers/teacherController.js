@@ -29,6 +29,21 @@ const getAllTeacher = async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 };
+const getTeacherProfile = async (req, res) => {
+  try {
+    // Find teacher by user field, not by _id
+    const teacher = await Teacher.findOne({ user: req.user.id }).populate(
+      "user",
+      "name email"
+    );
+    if (!teacher) {
+      return res.status(404).json({ message: "Teacher not found" });
+    }
+    res.status(200).json(teacher);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 const updateTeacher = async (req, res) => {
   try {
@@ -64,4 +79,5 @@ module.exports = {
   createTeacher,
   updateTeacher,
   deleteTeacher,
+  getTeacherProfile,
 };

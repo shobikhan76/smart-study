@@ -1,4 +1,6 @@
 const CourseOffered = require("../Model/CourseOffered");
+const Student = require("../Model/Student");
+const Teacher = require("../Model/Teacher");
 
 // Create a new course offering
 exports.createCourseOffered = async (req, res) => {
@@ -13,6 +15,23 @@ exports.createCourseOffered = async (req, res) => {
       createdBy: req.user._id,
     });
     await offered.save();
+
+    // Add CourseOffered reference to each student's offeredCourses
+    if (students && students.length > 0) {
+      await Student.updateMany(
+        { _id: { $in: students } },
+        { $addToSet: { offeredCourses: offered._id } }
+      );
+    }
+
+    // Add CourseOffered reference to each teacher's courses
+    if (teachers && teachers.length > 0) {
+      await Teacher.updateMany(
+        { _id: { $in: teachers } },
+        { $addToSet: { courses: offered._id } }
+      );
+    }
+
     res.status(201).json(offered);
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err });
@@ -25,7 +44,7 @@ exports.getAllCoursesOffered = async (req, res) => {
     const list = await CourseOffered.find()
       .populate({
         path: "course",
-        select: "title code",
+        select: "title code department",
       })
       .populate({
         path: "students",
@@ -62,6 +81,53 @@ exports.deleteCourseOffered = async (req, res) => {
   try {
     await CourseOffered.findByIdAndDelete(req.params.id);
     res.json({ message: "Deleted" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err });
+  }
+};
+
+// Get courses offered assigned to the logged-in teacher
+exports.getMyCoursesOffered = async (req, res) => {
+  try {
+    // Find courses where the logged-in teacher is assigned
+    const myCourses = await CourseOffered.find({ teachers: req.user.teacherId })
+    console.log(req.user.teacherId)
+      .populate({
+        path: "course",
+        select: "title code department",
+      })
+      .populate({
+        path: "students",
+        populate: { path: "user", select: "name email" },
+      })
+      .populate({
+        path: "teachers",
+        populate: { path: "user", select: "name email" },
+      });
+    res.json(myCourses);
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err });
+  }
+};
+
+// Get courses offered assigned to the logged-in student
+exports.getMyStudentCoursesOffered = async (req, res) => {
+  try {
+    // Find courses where the logged-in student is assigned
+    const myCourses = await CourseOffered.find({ students: req.user.studentId })
+      .populate({
+        path: "course",
+        select: "title code department",
+      })
+      .populate({
+        path: "students",
+        populate: { path: "user", select: "name email" },
+      })
+      .populate({
+        path: "teachers",
+        populate: { path: "user", select: "name email" },
+      });
+    res.json(myCourses);
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err });
   }

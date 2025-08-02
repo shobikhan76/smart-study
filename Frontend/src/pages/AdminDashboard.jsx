@@ -27,7 +27,7 @@ const Sidebar = ({ selected, setSelected }) => (
       { key: "students", label: "Manage Students", icon: FaUsers },
       { key: "applications", label: "Admission Applications", icon: FaClipboardList },
       { key: "coursesOffered", label: "Courses Offered", icon: FaGraduationCap },
-      { key: "results", label: "Student Results", icon: FaChartBar },
+      // { key: "results", label: "Student Results", icon: FaChartBar },
     ].map((item) => {
       const Icon = item.icon;
       return (
