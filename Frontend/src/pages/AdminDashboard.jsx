@@ -10,7 +10,7 @@ import AdminResults from "../components/admin/AdminResults";
 import AdminStudents from "../components/admin/AdminStudents";
 import AdminTeachers from "../components/admin/AdminTeachers";
 import AdminCoursesOffered from "../components/admin/AdminCoursesOffered";
-import Navbar from "../components/Navbar";
+// import Navbar from "../components/Navbar";
 
 // Sidebar Navigation
 const Sidebar = ({ selected, setSelected }) => (
@@ -144,6 +144,28 @@ const AdminDashboard = () => {
       setMessage("Failed to fetch applications.");
     }
   };
+  const handleApplicationUpdate = async (e) => {
+  e.preventDefault();
+  setMessage("");
+  try {
+    await axios.put(
+      `http://localhost:5000/api/applications/admin/${editingApplication._id}`,
+      applicationForm,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    setMessage("✅ Application updated successfully!");
+    setEditingApplication(null);
+    setApplicationForm({
+      name: "", email: "", department: "", fatherName: "", dateOfBirth: "",
+      city: "", previousSchool: "", board: "", marks: "", passingYear: "",
+      status: "pending", message: ""
+    });
+    fetchApplications(); // Refresh list
+  } catch (error) {
+    console.error("Update error:", error);
+    setMessage("❌ Failed to update application.");
+  }
+};
 
   // Announcement Handlers
   const handleAnnouncementChange = (e) => {
@@ -398,7 +420,7 @@ const AdminDashboard = () => {
 
   return (
     <>
-    <Navbar />
+    {/* <Navbar /> */}
     <div className="flex min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <Sidebar selected={selected} setSelected={setSelected} />
 
@@ -550,6 +572,8 @@ const AdminDashboard = () => {
                 handleApplicationFormChange={handleApplicationFormChange}
                 handleDeleteApplication={handleDeleteApplication}
                 message={message}
+                    handleApplicationUpdate={handleApplicationUpdate}  // ✅ Add this
+                     setEditingApplication={setEditingApplication}  
               />
             )}
 

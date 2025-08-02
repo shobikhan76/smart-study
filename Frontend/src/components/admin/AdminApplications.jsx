@@ -7,10 +7,11 @@ const AdminApplications = ({
   applicationForm,
   handleEditApplication,
   handleApplicationFormChange,
-  handleApplicationUpdate,
+  
   handleDeleteApplication,
   setEditingApplication,
   message,
+    handleApplicationUpdate, 
 }) => {
   return (
     <div className="space-y-8">
