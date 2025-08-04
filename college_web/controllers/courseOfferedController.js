@@ -91,7 +91,7 @@ exports.getMyCoursesOffered = async (req, res) => {
   try {
     // Find courses where the logged-in teacher is assigned
     const myCourses = await CourseOffered.find({ teachers: req.user.teacherId })
-    console.log(req.user.teacherId)
+    
       .populate({
         path: "course",
         select: "title code department",

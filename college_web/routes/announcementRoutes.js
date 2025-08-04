@@ -1,15 +1,32 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 const {
   createAnnouncement,
-  getAllAnnouncements
-} = require('../controllers/announcementController');
+  getAllAnnouncements,
+} = require("../controllers/announcementController");
 
-// ✅ Correctly import the middleware functions
-const { verifyToken, isAdmin } = require('../Middleware/authMiddleware');
+const {
+  verifyToken,
+  isAdmin,
+  isTeacher,
+} = require("../Middleware/authMiddleware");
 
-// 🧠 Apply only what you need: verifyToken for normal users, isAdmin if needed
-router.post('/', verifyToken, isAdmin, createAnnouncement); // Only admin can create
-router.get('/', verifyToken, getAllAnnouncements); // All authenticated users can view
+// Allow admin and teacher to post announcements
+router.post(
+  "/",
+  verifyToken,
+  (req, res, next) => {
+    if (req.user.role === "admin" || req.user.role === "teacher") {
+      return next();
+    }
+    return res
+      .status(403)
+      .json({ message: "Access denied: Admin or Teacher only" });
+  },
+  createAnnouncement
+);
+
+// All authenticated users can view announcements
+router.get("/", verifyToken, getAllAnnouncements);
 
 module.exports = router;

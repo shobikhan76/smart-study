@@ -13,7 +13,7 @@ const createStudent = async (req, res) => {
       semester,
       contact,
       address,
-      courses = []
+      courses = [],
     } = req.body;
 
     // Check if user or student already exists
@@ -32,7 +32,7 @@ const createStudent = async (req, res) => {
       name,
       email,
       password: hashPassword,
-      role: "student"
+      role: "student",
     });
     await user.save();
 
@@ -44,7 +44,7 @@ const createStudent = async (req, res) => {
       semester,
       contact,
       address,
-      courses
+      courses,
     });
     await student.save();
 
@@ -77,7 +77,7 @@ const updateStudent = async (req, res) => {
       semester,
       contact,
       address,
-      courses = []
+      courses = [],
     } = req.body;
 
     const student = await Student.findById(id).populate("user");
@@ -124,9 +124,26 @@ const deleteStudent = async (req, res) => {
   }
 };
 
+const getStudentProfile = async (req, res) => {
+  try {
+    // Find student by user field, not by _id
+    const student = await Student.findOne({ user: req.user.id }).populate(
+      "user",
+      "name email"
+    );
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+    res.status(200).json(student);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = {
   createStudent,
   getAllStudents,
   updateStudent,
   deleteStudent,
+  getStudentProfile,
 };

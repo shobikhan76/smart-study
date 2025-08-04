@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const TeacherAttendance = ({
   courses,
@@ -6,21 +7,24 @@ const TeacherAttendance = ({
   students,
   fetchStudentsInCourse,
   handleAttendanceSubmit,
+  token,
 }) => {
   const [expandedCourse, setExpandedCourse] = useState(null);
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]); // Today by default
-  const [courseAttendance, setCourseAttendance] = useState({}); // { studentId: "Present" | "Absent" }
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [courseAttendance, setCourseAttendance] = useState({});
+  const [attendanceRecords, setAttendanceRecords] = useState([]);
 
   const handleCourseToggle = async (courseId) => {
     if (expandedCourse === courseId) {
       setExpandedCourse(null);
+      setAttendanceRecords([]);
     } else {
       setExpandedCourse(courseId);
-      // Load students if not already loaded
       if (!students[courseId]) {
         await fetchStudentsInCourse(courseId);
       }
-
+      // Fetch attendance records for this course
+      fetchAttendanceRecords(courseId);
       // Restore previously submitted or initialize as Present
       const saved = attendance[courseId] || {};
       const initialStatus = {};
@@ -31,6 +35,22 @@ const TeacherAttendance = ({
     }
   };
 
+  const fetchAttendanceRecords = async (courseId) => {
+    try {
+      const res = await axios.get(
+  `http://localhost:5000/api/attendance/course/${courseId}`,
+  {
+    headers: {
+      Authorization: `Bearer ${token}`, // ✅ Ensure token is valid and passed correctly
+    },
+  }
+);
+      setAttendanceRecords(res.data);
+    } catch {
+      setAttendanceRecords([]);
+    }
+  };
+
   const handleStatusChange = (studentId, status) => {
     setCourseAttendance((prev) => ({
       ...prev,
@@ -38,15 +58,17 @@ const TeacherAttendance = ({
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const records = Object.keys(courseAttendance).map((studentId) => ({
-      studentId,
-      status: courseAttendance[studentId],
+      student: studentId,
+      course: expandedCourse,
       date,
+      status: courseAttendance[studentId].toLowerCase(),
     }));
-
-    handleAttendanceSubmit(expandedCourse, records);
+    await handleAttendanceSubmit(expandedCourse, records);
+    // Fetch updated attendance records after submission
+    await fetchAttendanceRecords(expandedCourse);
   };
 
   return (
@@ -54,7 +76,6 @@ const TeacherAttendance = ({
       <h2 className="text-2xl font-semibold mb-6 text-gray-800">
         Mark Attendance
       </h2>
-
       {courses.length === 0 ? (
         <p className="text-gray-500">You are not assigned to any courses.</p>
       ) : (
@@ -71,10 +92,11 @@ const TeacherAttendance = ({
               >
                 <div>
                   <h3 className="text-lg font-medium text-blue-700">
-                    {course.title}
+                    {course.title || course.course?.title}
                   </h3>
                   <p className="text-sm text-gray-600">
-                    {course.code} • {course.department}
+                    {course.code || course.course?.code} •{" "}
+                    {course.department || course.course?.department}
                   </p>
                 </div>
                 <span className="text-xl font-bold text-blue-500">
@@ -110,7 +132,7 @@ const TeacherAttendance = ({
                             className="flex justify-between items-center p-2 bg-gray-50 rounded"
                           >
                             <span className="text-sm font-medium text-gray-800">
-                              {student.name}
+                              {student.user?.name || student.name}
                             </span>
                             <div className="flex gap-4">
                               <label className="inline-flex items-center">
@@ -147,6 +169,23 @@ const TeacherAttendance = ({
                                   Absent
                                 </span>
                               </label>
+                              <label className="inline-flex items-center">
+                                <input
+                                  type="radio"
+                                  name={`status-${student._id}`}
+                                  value="Leave"
+                                  checked={
+                                    courseAttendance[student._id] === "Leave"
+                                  }
+                                  onChange={() =>
+                                    handleStatusChange(student._id, "Leave")
+                                  }
+                                  className="text-yellow-600"
+                                />
+                                <span className="ml-1 text-sm text-yellow-700">
+                                  Leave
+                                </span>
+                              </label>
                             </div>
                           </li>
                         ))}
@@ -164,6 +203,56 @@ const TeacherAttendance = ({
                       Submit Attendance
                     </button>
                   </form>
+
+                  {/* Attendance Records Table */}
+                  <div className="mt-8">
+                    <h4 className="text-md font-semibold mb-2 text-gray-800">
+                      Attendance Records
+                    </h4>
+                    {attendanceRecords.length === 0 ? (
+                      <p className="text-gray-500">
+                        No attendance records found.
+                      </p>
+                    ) : (
+                      <table className="w-full text-sm border">
+                        <thead>
+                          <tr className="bg-gray-100">
+                            <th className="p-2 text-left">Date</th>
+                            <th className="p-2 text-left">Student</th>
+                            <th className="p-2 text-left">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {attendanceRecords.map((rec, idx) => (
+                            <tr key={idx} className="border-b">
+                              <td className="p-2">
+                                {new Date(rec.date).toLocaleDateString()}
+                              </td>
+                              <td className="p-2">
+                                {rec.student?.user?.name ||
+                                  rec.student?.registrationNumber ||
+                                  "N/A"}
+                              </td>
+                              <td className="p-2">
+                                <span
+                                  className={
+                                    rec.status === "present"
+                                      ? "text-green-700 font-bold"
+                                      : rec.status === "absent"
+                                      ? "text-red-700 font-bold"
+                                      : "text-yellow-700 font-bold"
+                                  }
+                                >
+                                  {rec.status.charAt(0).toUpperCase() +
+                                    rec.status.slice(1)}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
                 </div>
               )}
             </div>

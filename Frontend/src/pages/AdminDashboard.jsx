@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { FaBell, FaBook, FaChalkboardTeacher, FaUsers, FaClipboardList, FaGraduationCap, FaChartBar } from "react-icons/fa";
+import {
+  FaBell,
+  FaBook,
+  FaChalkboardTeacher,
+  FaUsers,
+  FaClipboardList,
+  FaGraduationCap,
+  FaChartBar,
+} from "react-icons/fa";
 import axios from "axios";
 
 // Import Components
@@ -14,8 +22,10 @@ import AdminCoursesOffered from "../components/admin/AdminCoursesOffered";
 
 // Sidebar Navigation
 const Sidebar = ({ selected, setSelected }) => (
-  <div className="w-64 bg-gradient-to-b from-red-800 to-red-950 text-white min-h-screen p-6 flex flex-col gap-2 shadow-xl
-">
+  <div
+    className="w-64 bg-gradient-to-b from-red-800 to-red-950 text-white min-h-screen p-6 flex flex-col gap-2 shadow-xl
+"
+  >
     <h2 className="text-2xl font-bold mb-8 text-center bg-gradient-to-r text-white  bg-clip-text text-transparent">
       Admin Panel
     </h2>
@@ -25,8 +35,16 @@ const Sidebar = ({ selected, setSelected }) => (
       { key: "courses", label: "Manage Courses", icon: FaBook },
       { key: "teachers", label: "Manage Teachers", icon: FaChalkboardTeacher },
       { key: "students", label: "Manage Students", icon: FaUsers },
-      { key: "applications", label: "Admission Applications", icon: FaClipboardList },
-      { key: "coursesOffered", label: "Courses Offered", icon: FaGraduationCap },
+      {
+        key: "applications",
+        label: "Admission Applications",
+        icon: FaClipboardList,
+      },
+      {
+        key: "coursesOffered",
+        label: "Courses Offered",
+        icon: FaGraduationCap,
+      },
       // { key: "results", label: "Student Results", icon: FaChartBar },
     ].map((item) => {
       const Icon = item.icon;
@@ -55,29 +73,58 @@ const AdminDashboard = () => {
 
   // State for each module
   const [announcements, setAnnouncements] = useState([]);
-  const [announcementForm, setAnnouncementForm] = useState({ title: "", content: "" });
+  const [announcementForm, setAnnouncementForm] = useState({
+    title: "",
+    content: "",
+  });
 
   const [teachers, setTeachers] = useState([]);
   const [teacherForm, setTeacherForm] = useState({
-    name: "", email: "", password: "", designation: "", department: "", contact: ""
+    name: "",
+    email: "",
+    password: "",
+    designation: "",
+    department: "",
+    contact: "",
   });
   const [editingTeacher, setEditingTeacher] = useState(null);
 
   const [students, setStudents] = useState([]);
   const [studentForm, setStudentForm] = useState({
-    name: "", email: "", password: "", registrationNumber: "", department: "", semester: "",
-    contact: "", address: "", courses: []
+    name: "",
+    email: "",
+    password: "",
+    registrationNumber: "",
+    department: "",
+    semester: "",
+    contact: "",
+    address: "",
+    courses: [],
   });
   const [editingStudent, setEditingStudent] = useState(null);
 
   const [courses, setCourses] = useState([]);
-  const [courseForm, setCourseForm] = useState({ title: "", code: "", department: "" });
+  const [courseForm, setCourseForm] = useState({
+    title: "",
+    code: "",
+    department: "",
+  });
   const [editingCourse, setEditingCourse] = useState(null);
 
   const [applications, setApplications] = useState([]);
   const [applicationForm, setApplicationForm] = useState({
-    name: "", email: "", department: "", fatherName: "", dateOfBirth: "", city: "",
-    previousSchool: "", board: "", marks: "", passingYear: "", status: "pending", message: ""
+    name: "",
+    email: "",
+    department: "",
+    fatherName: "",
+    dateOfBirth: "",
+    city: "",
+    previousSchool: "",
+    board: "",
+    marks: "",
+    passingYear: "",
+    status: "pending",
+    message: "",
   });
   const [editingApplication, setEditingApplication] = useState(null);
 
@@ -125,9 +172,12 @@ const AdminDashboard = () => {
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/courses/getCourses", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        "http://localhost:5000/api/courses/getCourses",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setCourses(res.data);
     } catch {
       setMessage("Failed to fetch courses.");
@@ -136,49 +186,68 @@ const AdminDashboard = () => {
 
   const fetchApplications = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/applications/admin/all", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        "http://localhost:5000/api/applications/admin/all",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setApplications(res.data);
     } catch {
       setMessage("Failed to fetch applications.");
     }
   };
   const handleApplicationUpdate = async (e) => {
-  e.preventDefault();
-  setMessage("");
-  try {
-    await axios.put(
-      `http://localhost:5000/api/applications/admin/${editingApplication._id}`,
-      applicationForm,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    setMessage("✅ Application updated successfully!");
-    setEditingApplication(null);
-    setApplicationForm({
-      name: "", email: "", department: "", fatherName: "", dateOfBirth: "",
-      city: "", previousSchool: "", board: "", marks: "", passingYear: "",
-      status: "pending", message: ""
-    });
-    fetchApplications(); // Refresh list
-  } catch (error) {
-    console.error("Update error:", error);
-    setMessage("❌ Failed to update application.");
-  }
-};
+    e.preventDefault();
+    setMessage("");
+    try {
+      await axios.put(
+        `http://localhost:5000/api/applications/admin/${editingApplication._id}`,
+        applicationForm,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setMessage("✅ Application updated successfully!");
+      setEditingApplication(null);
+      setApplicationForm({
+        name: "",
+        email: "",
+        department: "",
+        fatherName: "",
+        dateOfBirth: "",
+        city: "",
+        previousSchool: "",
+        board: "",
+        marks: "",
+        passingYear: "",
+        status: "pending",
+        message: "",
+      });
+      fetchApplications(); // Refresh list
+    } catch (error) {
+      console.error("Update error:", error);
+      setMessage("❌ Failed to update application.");
+    }
+  };
 
   // Announcement Handlers
   const handleAnnouncementChange = (e) => {
-    setAnnouncementForm({ ...announcementForm, [e.target.name]: e.target.value });
+    setAnnouncementForm({
+      ...announcementForm,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleAnnouncementSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
     try {
-      await axios.post("http://localhost:5000/api/announcements", announcementForm, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.post(
+        "http://localhost:5000/api/announcements",
+        announcementForm,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setAnnouncementForm({ title: "", content: "" });
       setMessage("✅ Announcement posted!");
       fetchAnnouncements();
@@ -244,7 +313,12 @@ const AdminDashboard = () => {
       }
 
       setTeacherForm({
-        name: "", email: "", password: "", designation: "", department: "", contact: ""
+        name: "",
+        email: "",
+        password: "",
+        designation: "",
+        department: "",
+        contact: "",
       });
       setEditingTeacher(null);
       fetchTeachers();
@@ -285,6 +359,23 @@ const AdminDashboard = () => {
   const handleStudentSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
+    // Client-side validation
+    const requiredFields = [
+      "name",
+      "email",
+      "password",
+      "registrationNumber",
+      "department",
+      "semester",
+      "contact",
+      "address",
+    ];
+    for (const field of requiredFields) {
+      if (!studentForm[field] || studentForm[field].toString().trim() === "") {
+        setMessage(`❌ Please fill all required fields (${field}).`);
+        return;
+      }
+    }
     try {
       if (editingStudent) {
         await axios.put(
@@ -303,13 +394,24 @@ const AdminDashboard = () => {
       }
 
       setStudentForm({
-        name: "", email: "", password: "", registrationNumber: "", department: "", semester: "",
-        contact: "", address: "", courses: []
+        name: "",
+        email: "",
+        password: "",
+        registrationNumber: "",
+        department: "",
+        semester: "",
+        contact: "",
+        address: "",
+        courses: [],
       });
       setEditingStudent(null);
       fetchStudents();
-    } catch {
-      setMessage("❌ Failed to create or update student.");
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.message) {
+        setMessage(`❌ ${err.response.data.message}`);
+      } else {
+        setMessage("❌ Failed to create or update student.");
+      }
     }
   };
 
@@ -420,170 +522,185 @@ const AdminDashboard = () => {
 
   return (
     <>
-    {/* <Navbar /> */}
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <Sidebar selected={selected} setSelected={setSelected} />
+      {/* <Navbar /> */}
+      <div className="flex min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+        <Sidebar selected={selected} setSelected={setSelected} />
 
-      <div className="flex-1 p-6 md:p-8">
-        <div className="max-w-6xl mx-auto bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-red-800 to-red-600 text-white p-6">
-            <h1 className="text-3xl font-bold flex items-center gap-3">
-              <FaUsers />
-              Admin Dashboard
-            </h1>
-            <p className="text-blue-100 mt-1">Manage your university with ease and precision</p>
-          </div>
-
-          {/* Message Alert */}
-          {message && (
-            <div
-              className={`p-4 text-center text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
-                message.startsWith("✅")
-                  ? "bg-green-50 text-green-700 border-b border-green-100"
-                  : "bg-red-50 text-red-700 border-b border-red-100"
-              }`}
-            >
-              {message.startsWith("✅") ? (
-                <span className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center text-white text-xs">✓</span>
-              ) : (
-                <span className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">!</span>
-              )}
-              {message.replace("✅", "").replace("❌", "").trim()}
+        <div className="flex-1 p-6 md:p-8">
+          <div className="max-w-6xl mx-auto bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-red-800 to-red-600 text-white p-6">
+              <h1 className="text-3xl font-bold flex items-center gap-3">
+                <FaUsers />
+                Admin Dashboard
+              </h1>
+              <p className="text-blue-100 mt-1">
+                Manage your university with ease and precision
+              </p>
             </div>
-          )}
 
-          {/* Content */}
-          <div className="p-8">
-            {selected === "announcements" && (
-              <AdminAnnouncements
-                announcements={announcements}
-                announcementForm={announcementForm}
-                handleAnnouncementChange={handleAnnouncementChange}
-                handleAnnouncementSubmit={handleAnnouncementSubmit}
-                handleDeleteAnnouncement={handleDeleteAnnouncement}
-                message={message}
-              />
+            {/* Message Alert */}
+            {message && (
+              <div
+                className={`p-4 text-center text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
+                  message.startsWith("✅")
+                    ? "bg-green-50 text-green-700 border-b border-green-100"
+                    : "bg-red-50 text-red-700 border-b border-red-100"
+                }`}
+              >
+                {message.startsWith("✅") ? (
+                  <span className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center text-white text-xs">
+                    ✓
+                  </span>
+                ) : (
+                  <span className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">
+                    !
+                  </span>
+                )}
+                {message.replace("✅", "").replace("❌", "").trim()}
+              </div>
             )}
 
-            {selected === "courses" && (
-              <>
-                {editingCourse && (
-                  <div className="mb-6 bg-blue-50 p-6 rounded-xl border border-blue-100">
-                    <h3 className="font-bold text-lg mb-4 text-blue-800 flex items-center gap-2">
-                      <FaBook /> Edit Course
-                    </h3>
-                    <form onSubmit={handleCourseSubmit} className="space-y-4">
-                      <input
-                        type="text"
-                        name="title"
-                        placeholder="Course Title"
-                        value={courseForm.title}
-                        onChange={handleCourseChange}
-                        className="w-full px-4 py-3 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-300 focus:outline-none bg-white"
-                        required
-                      />
-                      <input
-                        type="text"
-                        name="code"
-                        placeholder="Course Code"
-                        value={courseForm.code}
-                        onChange={handleCourseChange}
-                        className="w-full px-4 py-3 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-300 focus:outline-none bg-white"
-                        required
-                      />
-                      <input
-                        type="text"
-                        name="department"
-                        placeholder="Department"
-                        value={courseForm.department}
-                        onChange={handleCourseChange}
-                        className="w-full px-4 py-3 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-300 focus:outline-none bg-white"
-                        required
-                      />
-                      <div className="flex gap-3 mt-4">
-                        <button
-                          type="submit"
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition"
-                        >
-                          Update Course
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditingCourse(null);
-                            setCourseForm({ title: "", code: "", department: "" });
-                          }}
-                          className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg font-medium transition"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                )}
-                <AdminCourses
-                  courses={courses}
-                  courseForm={courseForm}
-                  handleCourseChange={handleCourseChange}
-                  handleCourseSubmit={handleCourseSubmit}
-                  handleEditCourse={handleEditCourse}
-                  handleDeleteCourse={handleDeleteCourse}
+            {/* Content */}
+            <div className="p-8">
+              {selected === "announcements" && (
+                <AdminAnnouncements
+                  announcements={announcements}
+                  announcementForm={announcementForm}
+                  handleAnnouncementChange={handleAnnouncementChange}
+                  handleAnnouncementSubmit={handleAnnouncementSubmit}
+                  handleDeleteAnnouncement={handleDeleteAnnouncement}
                   message={message}
                 />
-              </>
-            )}
+              )}
 
-            {selected === "teachers" && (
-              <AdminTeachers
-                teachers={teachers}
-                teacherForm={teacherForm}
-                handleTeacherFormChange={handleTeacherFormChange}
-                handleTeacherSubmit={handleTeacherSubmit}
-                handleEditTeacher={handleEditTeacher}
-                handleDeleteTeacher={handleDeleteTeacher}
-                editingTeacher={editingTeacher}
-                setEditingTeacher={setEditingTeacher}
-                setTeacherForm={setTeacherForm}
-                message={message}
-              />
-            )}
+              {selected === "courses" && (
+                <>
+                  {editingCourse && (
+                    <div className="mb-6 bg-blue-50 p-6 rounded-xl border border-blue-100">
+                      <h3 className="font-bold text-lg mb-4 text-blue-800 flex items-center gap-2">
+                        <FaBook /> Edit Course
+                      </h3>
+                      <form onSubmit={handleCourseSubmit} className="space-y-4">
+                        <input
+                          type="text"
+                          name="title"
+                          placeholder="Course Title"
+                          value={courseForm.title}
+                          onChange={handleCourseChange}
+                          className="w-full px-4 py-3 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-300 focus:outline-none bg-white"
+                          required
+                        />
+                        <input
+                          type="text"
+                          name="code"
+                          placeholder="Course Code"
+                          value={courseForm.code}
+                          onChange={handleCourseChange}
+                          className="w-full px-4 py-3 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-300 focus:outline-none bg-white"
+                          required
+                        />
+                        <input
+                          type="text"
+                          name="department"
+                          placeholder="Department"
+                          value={courseForm.department}
+                          onChange={handleCourseChange}
+                          className="w-full px-4 py-3 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-300 focus:outline-none bg-white"
+                          required
+                        />
+                        <div className="flex gap-3 mt-4">
+                          <button
+                            type="submit"
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition"
+                          >
+                            Update Course
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingCourse(null);
+                              setCourseForm({
+                                title: "",
+                                code: "",
+                                department: "",
+                              });
+                            }}
+                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg font-medium transition"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  )}
+                  <AdminCourses
+                    courses={courses}
+                    courseForm={courseForm}
+                    handleCourseChange={handleCourseChange}
+                    handleCourseSubmit={handleCourseSubmit}
+                    handleEditCourse={handleEditCourse}
+                    handleDeleteCourse={handleDeleteCourse}
+                    message={message}
+                  />
+                </>
+              )}
 
-            {selected === "students" && (
-              <AdminStudents
-                students={students}
-                studentForm={studentForm}
-                handleStudentFormChange={handleStudentFormChange}
-                handleStudentSubmit={handleStudentSubmit}
-                handleEditStudent={handleEditStudent}
-                handleDeleteStudent={handleDeleteStudent}
-                editingStudent={editingStudent}
-                setEditingStudent={setEditingStudent}
-                message={message}
-              />
-            )}
+              {selected === "teachers" && (
+                <AdminTeachers
+                  teachers={teachers}
+                  teacherForm={teacherForm}
+                  handleTeacherFormChange={handleTeacherFormChange}
+                  handleTeacherSubmit={handleTeacherSubmit}
+                  handleEditTeacher={handleEditTeacher}
+                  handleDeleteTeacher={handleDeleteTeacher}
+                  editingTeacher={editingTeacher}
+                  setEditingTeacher={setEditingTeacher}
+                  setTeacherForm={setTeacherForm}
+                  message={message}
+                />
+              )}
 
-            {selected === "applications" && (
-              <AdminApplications
-                applications={applications}
-                applicationForm={applicationForm}
-                editingApplication={editingApplication}
-                handleEditApplication={handleEditApplication}
-                handleApplicationFormChange={handleApplicationFormChange}
-                handleDeleteApplication={handleDeleteApplication}
-                message={message}
-                    handleApplicationUpdate={handleApplicationUpdate}  // ✅ Add this
-                     setEditingApplication={setEditingApplication}  
-              />
-            )}
+              {selected === "students" && (
+                <AdminStudents
+                  students={students}
+                  studentForm={studentForm}
+                  handleStudentFormChange={handleStudentFormChange}
+                  handleStudentSubmit={handleStudentSubmit}
+                  handleEditStudent={handleEditStudent}
+                  handleDeleteStudent={handleDeleteStudent}
+                  editingStudent={editingStudent}
+                  setEditingStudent={setEditingStudent}
+                  message={message}
+                />
+              )}
 
-            {selected === "results" && <AdminResults results={results} message={message} />}
-            {selected === "coursesOffered" && <AdminCoursesOffered token={token} />}
+              {selected === "applications" && (
+                <AdminApplications
+                  applications={applications}
+                  applicationForm={applicationForm}
+                  editingApplication={editingApplication}
+                  handleEditApplication={handleEditApplication}
+                  handleApplicationFormChange={handleApplicationFormChange}
+                  handleDeleteApplication={handleDeleteApplication}
+                  message={message}
+                  handleApplicationUpdate={handleApplicationUpdate} // ✅ Add this
+                  setEditingApplication={setEditingApplication}
+                />
+              )}
+
+              {selected === "results" && (
+                <AdminResults results={results} message={message} />
+              )}
+              {selected === "coursesOffered" && (
+                <AdminCoursesOffered token={token} />
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-</>  );
+    </>
+  );
 };
 
 export default AdminDashboard;

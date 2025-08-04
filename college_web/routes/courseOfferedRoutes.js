@@ -43,4 +43,25 @@ router.get(
   ctrl.getMyStudentCoursesOffered
 );
 
+// Get students for a specific offered course
+router.get(
+  "/:id/students",
+  verifyToken,
+  checkRole("teacher", "admin"),
+  async (req, res) => {
+    try {
+      const CourseOffered = require("../Model/CourseOffered");
+      const offered = await CourseOffered.findById(req.params.id).populate({
+        path: "students",
+        populate: { path: "user", select: "name email" },
+      });
+      if (!offered)
+        return res.status(404).json({ message: "Course offering not found" });
+      res.json(offered.students);
+    } catch (err) {
+      res.status(500).json({ message: "Server error", error: err });
+    }
+  }
+);
+
 module.exports = router;

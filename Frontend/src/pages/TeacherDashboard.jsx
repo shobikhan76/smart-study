@@ -123,7 +123,7 @@ const TeacherDashboard = () => {
   const fetchStudentsInCourse = async (courseId) => {
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/courseoffered/${courseId}/students`,
+        `http://localhost:5000/api/course-offered/${courseId}/students`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -149,7 +149,7 @@ const TeacherDashboard = () => {
   const handleAttendanceSubmit = async (courseId, records) => {
     try {
       await axios.post(
-        "http://localhost:5000/api/attendance/mark",
+        "http://localhost:5000/api/attendance",
         { courseId, records },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -174,11 +174,28 @@ const TeacherDashboard = () => {
     }
   };
 
-  const handleGradeSubmit = async (courseId, studentId, assignment, grade) => {
+  const allowedGrades = ["A+", "A", "B", "C", "D", "F"];
+
+  const handleGradeSubmit = async (
+    courseId,
+    studentId,
+    assignment,
+    grade,
+    remarks
+  ) => {
+    if (!studentId || !courseId || !grade || !allowedGrades.includes(grade)) {
+      setMessage("Please select a valid grade (A+, A, B, C, D, F).");
+      return;
+    }
     try {
       await axios.post(
         "http://localhost:5000/api/grades",
-        { courseId, studentId, assignment, grade },
+        {
+          student: studentId,
+          course: courseId,
+          grade,
+          remarks,
+        },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -186,7 +203,11 @@ const TeacherDashboard = () => {
       fetchGrades();
       setMessage("Grade updated successfully!");
     } catch (e) {
-      setMessage("Failed to update grade.");
+      if (e.response && e.response.data && e.response.data.message) {
+        setMessage(e.response.data.message);
+      } else {
+        setMessage("Failed to update grade.");
+      }
     }
   };
 
@@ -235,15 +256,12 @@ const TeacherDashboard = () => {
   // 6. Announcements (Announcement MVC)
   const fetchAnnouncements = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:5000/api/announcements/teacher",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const res = await axios.get("http://localhost:5000/api/announcements", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setAnnouncements(res.data);
     } catch (e) {
-      console.error("Failed to fetch announcements:", e);
+      setMessage("Failed to fetch announcements.");
     }
   };
 
@@ -358,19 +376,6 @@ const TeacherDashboard = () => {
   };
 
   // === RENDER ===
-  // Transform courses for TeacherCourses
-  const flatCourses = courses.map((offered) => ({
-    // Use CourseOffered _id for toggling/expanding
-    _id: offered._id,
-    // Spread course details (populated)
-    ...(offered.course || {}),
-    // Add extra info
-    semester: offered.semester,
-    year: offered.year,
-    students: offered.students,
-    teachers: offered.teachers,
-  }));
-
   return (
     <div className="flex min-h-screen bg-gray-100">
       <Sidebar selected={selected} setSelected={setSelected} />
@@ -387,9 +392,10 @@ const TeacherDashboard = () => {
 
           {selected === "courses" && (
             <TeacherCourses
-              courses={flatCourses}
+              courses={courses}
               students={students}
               fetchStudentsInCourse={fetchStudentsInCourse}
+              handleGradeSubmit={handleGradeSubmit} // Pass grade handler
             />
           )}
 
@@ -400,6 +406,7 @@ const TeacherDashboard = () => {
               students={students}
               fetchStudentsInCourse={fetchStudentsInCourse}
               handleAttendanceSubmit={handleAttendanceSubmit}
+              token={token} // ✅ Pass it here
             />
           )}
 
