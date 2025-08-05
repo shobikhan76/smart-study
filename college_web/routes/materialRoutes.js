@@ -10,7 +10,15 @@ router.post(
   "/upload",
   verifyToken,
   checkRole("teacher"),
-  upload.single("pdf"),
+
+  upload.single("file"),
+  (req, res, next) => {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+    console.log("Material upload route, file uploaded");
+    next();
+  },
   ctrl.uploadMaterial
 );
 

@@ -239,18 +239,22 @@ const TeacherDashboard = () => {
     formData.append("file", uploadForm.file);
 
     try {
+      console.log("Uploading material with formData:", formData);
       await axios.post("http://localhost:5000/api/materials/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
       });
+      console.log("Material uploaded successfully");
       setUploadForm({ courseId: "", title: "", file: null });
-      fetchMaterials();
+      await fetchMaterials();
       setMessage("Material uploaded successfully!");
     } catch (e) {
       setMessage("Upload failed. Try again.");
     }
+    console.error("Upload error:", e.response?.data || e.message); // log full error
+    setMessage("Upload failed. Try again.");
   };
 
   // 6. Announcements (Announcement MVC)

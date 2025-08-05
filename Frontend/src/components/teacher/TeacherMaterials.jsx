@@ -1,6 +1,3 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-
 const TeacherMaterials = ({
   courses,
   materials,
@@ -45,7 +42,7 @@ const TeacherMaterials = ({
       />
       <input
         type="file"
-        name="pdf"
+        name="file"
         accept="application/pdf"
         onChange={handleFileChange}
         required

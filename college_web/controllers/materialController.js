@@ -1,24 +1,36 @@
 const Material = require("../Model/Material");
+const mongoose = require("mongoose");
 
 // Teacher uploads material (PDF)
 exports.uploadMaterial = async (req, res) => {
   try {
     const { course, title } = req.body;
     const file = req.file;
+    const teacherId = req.user.teacherId || req.user._id;
+    console.log("UploadMaterial received:", { course, title, file, teacherId });
     if (!course || !title || !file) {
       return res
         .status(400)
         .json({ message: "Course, title, and PDF file are required." });
     }
+    if (!teacherId) {
+      return res
+        .status(400)
+        .json({ message: "Teacher ID not found in token." });
+    }
+    if (!mongoose.Types.ObjectId.isValid(course)) {
+      return res.status(400).json({ message: "Invalid course ID." });
+    }
     const material = new Material({
       course,
-      teacher: req.user.teacherId,
+      teacher: teacherId,
       title,
       fileUrl: `/uploads/materials/${file.filename}`,
     });
     await material.save();
     res.status(201).json({ message: "Material uploaded", material });
   } catch (err) {
+    console.error("Material upload error:", err);
     res.status(500).json({ message: "Server error", error: err });
   }
 };
@@ -39,7 +51,8 @@ exports.getCourseMaterials = async (req, res) => {
 // Get materials uploaded by the logged-in teacher
 exports.getTeacherMaterials = async (req, res) => {
   try {
-    const materials = await Material.find({ teacher: req.user.teacherId })
+    const teacherId = req.user.teacherId || req.user._id;
+    const materials = await Material.find({ teacher: teacherId })
       .populate("course", "title code")
       .sort({ createdAt: -1 });
     res.json(materials);
