@@ -19,6 +19,7 @@ const resultRoutes = require("./routes/resultRoutes");
 const assignmentRoutes = require("./routes/assignmentRoutes");
 const teacherController = require("./controllers/teacherController");
 const studentController = require("./controllers/studentController");
+const queryController = require("./controllers/queryController");
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -41,6 +42,7 @@ app.use("/api/student-profiles", require("./routes/studentProfileRoutes"));
 app.use("/api/teachers", teacherRoutes);
 app.use("/api/students", studentRoutes);
 app.use('/api/course-offered', require('./routes/courseOfferedRoutes'));
+app.use("/api/queries", require("./routes/queryRoutes"));
 // Default route
 app.get("/", (req, res) => {
   res.send("Hello World");

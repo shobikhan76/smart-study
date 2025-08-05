@@ -15,9 +15,7 @@ const studentSchema = mongoose.Schema(
     department: {
       type: String,
       required: true,
-    },
-    semester: {
-      type: String,
+      enum: ["IT", "CIVIL", "MECHANICS", "ELECTRICAL", "OTHER"], // <-- restrict to allowed departments
     },
     contact: {
       type: String,

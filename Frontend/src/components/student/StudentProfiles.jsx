@@ -17,9 +17,8 @@ const StudentProfiles = ({ student }) => {
       <div className="mb-2">
         <strong>Department:</strong> {student.department}
       </div>
-      <div className="mb-2">
-        <strong>Semester:</strong> {student.semester}
-      </div>
+      {/* 
+      4 */}
       <div className="mb-2">
         <strong>Contact:</strong> {student.contact}
       </div>

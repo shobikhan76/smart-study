@@ -1,34 +1,27 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const StudentAttendance = ({ token, studentId }) => {
-  const [attendance, setAttendance] = useState([]);
+const StudentAttendance = ({ token, studentId, attendance }) => {
   const [percentage, setPercentage] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!studentId) return;
-    const fetchAttendance = async () => {
+    const fetchPercentage = async () => {
+      setLoading(true);
       try {
-        const res = await axios.get(
-          `http://localhost:5000/api/attendance/student/${studentId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setAttendance(res.data);
-
         const percRes = await axios.get(
           `http://localhost:5000/api/attendance/percentage/${studentId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setPercentage(percRes.data.attendancePercentage);
-      } catch {
-        setAttendance([]);
+      } catch (error) {
         setPercentage(null);
       } finally {
         setLoading(false);
       }
     };
-    fetchAttendance();
+    fetchPercentage();
   }, [studentId, token]);
 
   return (

@@ -7,6 +7,7 @@ import StudentTimetable from "../components/student/StudentTimetable";
 import StudentQueries from "../components/student/StudentQueries";
 import StudentProfiles from "../components/student/StudentProfiles"; // <-- import
 import StudentAttendance from "../components/student/StudentAttendance";
+import StudentAssignments from "../components/student/StudentAssignments";
 
 const Sidebar = ({ selected, setSelected }) => (
   <div className="w-64 bg-green-800 text-white min-h-screen p-6 flex flex-col gap-4">
@@ -16,7 +17,8 @@ const Sidebar = ({ selected, setSelected }) => (
       "courses",
       "announcements",
       "grades",
-      "attendance", // <-- add attendance tab
+      "attendance",
+      "assignments", // <-- add assignments tab
       "timetable",
       "queries",
     ].map((item) => (
@@ -46,6 +48,15 @@ const StudentDashboard = () => {
   const [timetable, setTimetable] = useState([]);
   const [queries, setQueries] = useState([]);
   const [queryForm, setQueryForm] = useState({ courseId: "", question: "" });
+  const [attendance, setAttendance] = useState([]); // <-- add attendance state
+  const [assignments, setAssignments] = useState([]);
+  const [assignmentForm, setAssignmentForm] = useState({
+    course: "",
+    title: "",
+    description: "",
+    dueDate: "",
+    pdf: null,
+  });
 
   // Fetch data
   useEffect(() => {
@@ -53,6 +64,8 @@ const StudentDashboard = () => {
     if (selected === "courses") fetchCourses();
     if (selected === "announcements") fetchAnnouncements();
     if (selected === "grades") fetchGrades();
+    if (selected === "attendance") fetchAttendance();
+    if (selected === "assignments") fetchAssignments(); // <-- fetch assignments
     if (selected === "timetable") fetchTimetable();
     if (selected === "queries") fetchQueries();
     // eslint-disable-next-line
@@ -128,6 +141,35 @@ const StudentDashboard = () => {
     }
   };
 
+  // 6. Attendance (for student)
+  const fetchAttendance = async () => {
+    if (!studentProfile?._id) return;
+    try {
+      const res = await axios.get(
+        `http://localhost:5000/api/attendance/student/${studentProfile._id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setAttendance(res.data);
+    } catch {
+      setAttendance([]);
+      setMessage("Unable to load attendance.");
+    }
+  };
+
+  // 7. Assignments (for student)
+  const fetchAssignments = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:5000/api/assignments/student",
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setAssignments(res.data);
+    } catch {
+      setAssignments([]);
+      setMessage("Unable to load assignments.");
+    }
+  };
+
   // Query form handlers
   const handleQueryChange = (e) => {
     setQueryForm({ ...queryForm, [e.target.name]: e.target.value });
@@ -135,14 +177,59 @@ const StudentDashboard = () => {
   const handleQuerySubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/api/queries", queryForm, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.post(
+        "http://localhost:5000/api/queries",
+        {
+          course: queryForm.courseId, // <-- fix: use 'course'
+          question: queryForm.question,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setQueryForm({ courseId: "", question: "" });
       fetchQueries();
       setMessage("Query sent!");
     } catch {
       setMessage("Failed to send query.");
+    }
+  };
+
+  const handleAssignmentChange = (e) => {
+    setAssignmentForm({ ...assignmentForm, [e.target.name]: e.target.value });
+  };
+
+  const handleFileChange = (e) => {
+    setAssignmentForm({ ...assignmentForm, pdf: e.target.files[0] });
+  };
+
+  const handleAssignmentSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const formData = new FormData();
+      formData.append("course", assignmentForm.course);
+      formData.append("title", assignmentForm.title);
+      formData.append("description", assignmentForm.description);
+      formData.append("dueDate", assignmentForm.dueDate);
+      if (assignmentForm.pdf) formData.append("pdf", assignmentForm.pdf);
+
+      await axios.post("http://localhost:5000/api/assignments", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setAssignmentForm({
+        course: "",
+        title: "",
+        description: "",
+        dueDate: "",
+        pdf: null,
+      });
+      fetchAssignments();
+      setMessage("Assignment submitted!");
+    } catch {
+      setMessage("Failed to submit assignment.");
     }
   };
 
@@ -169,7 +256,11 @@ const StudentDashboard = () => {
             <StudentGrades grades={grades} courses={courses} />
           )}
           {selected === "attendance" && (
-            <StudentAttendance token={token} studentId={studentProfile?._id} />
+            <StudentAttendance
+              token={token}
+              studentId={studentProfile?._id}
+              attendance={attendance}
+            />
           )}
           {selected === "timetable" && (
             <StudentTimetable timetable={timetable} courses={courses} />
@@ -181,6 +272,16 @@ const StudentDashboard = () => {
               queryForm={queryForm}
               handleQueryChange={handleQueryChange}
               handleQuerySubmit={handleQuerySubmit}
+            />
+          )}
+          {selected === "assignments" && (
+            <StudentAssignments
+              assignments={assignments}
+              courses={courses}
+              assignmentForm={assignmentForm}
+              handleAssignmentChange={handleAssignmentChange}
+              handleAssignmentSubmit={handleAssignmentSubmit}
+              handleFileChange={handleFileChange}
             />
           )}
         </div>

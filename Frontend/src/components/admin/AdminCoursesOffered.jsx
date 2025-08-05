@@ -14,13 +14,13 @@ import {
   FaSave,
 } from "react-icons/fa";
 
-const semesters = Array.from({ length: 8 }, (_, i) => i + 1);
+const departments = ["IT", "CIVIL", "MECHANICS", "ELECTRICAL", "OTHER"];
 
 const AdminCoursesOffered = ({ token }) => {
   const [students, setStudents] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [courses, setCourses] = useState([]);
-  const [semester, setSemester] = useState(1);
+  const [department, setDepartment] = useState("IT");
   const [year, setYear] = useState(new Date().getFullYear());
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [selectedTeachers, setSelectedTeachers] = useState([]);
@@ -78,27 +78,35 @@ const AdminCoursesOffered = ({ token }) => {
 
     try {
       if (isEditing && editId) {
-        await axios.put(`http://localhost:5000/api/course-offered/${editId}`, {
-          course: selectedCourses[0],
-          students: selectedStudents,
-          teachers: selectedTeachers,
-          semester,
-          year,
-        }, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await axios.put(
+          `http://localhost:5000/api/course-offered/${editId}`,
+          {
+            course: selectedCourses[0],
+            students: selectedStudents,
+            teachers: selectedTeachers,
+            department,
+            year,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         setMessage("✅ Course offering updated successfully!");
       } else {
         for (let courseId of selectedCourses) {
-          await axios.post("http://localhost:5000/api/course-offered/create", {
-            course: courseId,
-            students: selectedStudents,
-            teachers: selectedTeachers,
-            semester,
-            year,
-          }, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          await axios.post(
+            "http://localhost:5000/api/course-offered/create",
+            {
+              course: courseId,
+              students: selectedStudents,
+              teachers: selectedTeachers,
+              department,
+              year,
+            },
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
         }
         setMessage("✅ Courses offered successfully!");
       }
@@ -113,7 +121,7 @@ const AdminCoursesOffered = ({ token }) => {
     setSelectedStudents([]);
     setSelectedTeachers([]);
     setSelectedCourses([]);
-    setSemester(1);
+    setDepartment("IT");
     setYear(new Date().getFullYear());
     setIsEditing(false);
     setEditId(null);
@@ -135,11 +143,11 @@ const AdminCoursesOffered = ({ token }) => {
   const handleEdit = (offered) => {
     setIsEditing(true);
     setEditId(offered._id);
-    setSemester(offered.semester);
+    setDepartment(offered.department);
     setYear(offered.year);
     setSelectedCourses([offered.course?._id]);
-    setSelectedStudents(offered.students?.map(s => s._id) || []);
-    setSelectedTeachers(offered.teachers?.map(t => t._id) || []);
+    setSelectedStudents(offered.students?.map((s) => s._id) || []);
+    setSelectedTeachers(offered.teachers?.map((t) => t._id) || []);
   };
 
   return (
@@ -149,72 +157,155 @@ const AdminCoursesOffered = ({ token }) => {
       </h2>
 
       <form onSubmit={handleAssign} className="space-y-4">
-        {/* Semester and Year Inputs */}
+        {/* Department and Year Inputs */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block mb-1">Semester</label>
-            <select value={semester} onChange={(e) => setSemester(Number(e.target.value))} className="w-full border rounded p-2">
-              {semesters.map(s => <option key={s} value={s}>Semester {s}</option>)}
+            <label className="block mb-1">Department</label>
+            <select
+              value={department}
+              onChange={(e) => setDepartment(e.target.value)}
+              className="w-full border rounded p-2"
+            >
+              {departments.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
             </select>
           </div>
           <div>
             <label className="block mb-1">Year</label>
-            <input type="number" value={year} onChange={(e) => setYear(Number(e.target.value))} className="w-full border rounded p-2" />
+            <input
+              type="number"
+              value={year}
+              onChange={(e) => setYear(Number(e.target.value))}
+              className="w-full border rounded p-2"
+            />
           </div>
         </div>
 
         {/* Student Select */}
         <div>
           <label className="block mb-1">Students</label>
-          <select multiple value={selectedStudents} onChange={(e) => setSelectedStudents(Array.from(e.target.selectedOptions, o => o.value))} className="w-full border rounded p-2 h-32">
-            {students.map(s => <option key={s._id} value={s._id}>{s.user?.name} ({s.user?.email})</option>)}
+          <select
+            multiple
+            value={selectedStudents}
+            onChange={(e) =>
+              setSelectedStudents(
+                Array.from(e.target.selectedOptions, (o) => o.value)
+              )
+            }
+            className="w-full border rounded p-2 h-32"
+          >
+            {students.map((s) => (
+              <option key={s._id} value={s._id}>
+                {s.user?.name} ({s.user?.email})
+              </option>
+            ))}
           </select>
         </div>
 
         {/* Teacher Select */}
         <div>
           <label className="block mb-1">Teachers</label>
-          <select multiple value={selectedTeachers} onChange={(e) => setSelectedTeachers(Array.from(e.target.selectedOptions, o => o.value))} className="w-full border rounded p-2 h-32">
-            {teachers.map(t => <option key={t._id} value={t._id}>{t.user?.name} ({t.user?.email})</option>)}
+          <select
+            multiple
+            value={selectedTeachers}
+            onChange={(e) =>
+              setSelectedTeachers(
+                Array.from(e.target.selectedOptions, (o) => o.value)
+              )
+            }
+            className="w-full border rounded p-2 h-32"
+          >
+            {teachers.map((t) => (
+              <option key={t._id} value={t._id}>
+                {t.user?.name} ({t.user?.email})
+              </option>
+            ))}
           </select>
         </div>
 
         {/* Course Select */}
         <div>
           <label className="block mb-1">Courses</label>
-          <select multiple required value={selectedCourses} onChange={(e) => setSelectedCourses(Array.from(e.target.selectedOptions, o => o.value))} className="w-full border rounded p-2 h-32">
-            {courses.map(c => <option key={c._id} value={c._id}>{c.title} ({c.code})</option>)}
+          <select
+            multiple
+            required
+            value={selectedCourses}
+            onChange={(e) =>
+              setSelectedCourses(
+                Array.from(e.target.selectedOptions, (o) => o.value)
+              )
+            }
+            className="w-full border rounded p-2 h-32"
+          >
+            {courses.map((c) => (
+              <option key={c._id} value={c._id}>
+                {c.title} ({c.code})
+              </option>
+            ))}
           </select>
         </div>
 
         {/* Submit/Cancel Buttons */}
         <div className="flex gap-3">
-          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded flex items-center gap-2">
-            {isEditing ? <><FaSave /> Update</> : <><FaPlus /> Assign</>}
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded flex items-center gap-2"
+          >
+            {isEditing ? (
+              <>
+                <FaSave /> Update
+              </>
+            ) : (
+              <>
+                <FaPlus /> Assign
+              </>
+            )}
           </button>
           {isEditing && (
-            <button type="button" onClick={resetForm} className="bg-gray-400 text-white px-4 py-2 rounded">Cancel</button>
+            <button
+              type="button"
+              onClick={resetForm}
+              className="bg-gray-400 text-white px-4 py-2 rounded"
+            >
+              Cancel
+            </button>
           )}
         </div>
       </form>
 
       {/* Message */}
       {message && (
-        <div className={`p-3 rounded text-sm ${message.startsWith("✅") ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
-          {message.startsWith("✅") ? <FaCheckCircle className="inline mr-1" /> : <FaExclamationCircle className="inline mr-1" />} {message}
+        <div
+          className={`p-3 rounded text-sm ${
+            message.startsWith("✅")
+              ? "bg-green-100 text-green-800"
+              : "bg-red-100 text-red-800"
+          }`}
+        >
+          {message.startsWith("✅") ? (
+            <FaCheckCircle className="inline mr-1" />
+          ) : (
+            <FaExclamationCircle className="inline mr-1" />
+          )}{" "}
+          {message}
         </div>
       )}
 
       {/* Offered Courses List */}
       <div className="border rounded shadow">
         <div className="p-4 bg-gray-50 border-b">
-          <h3 className="font-semibold text-gray-800 flex items-center gap-2"><FaList className="text-green-600" /> Offered Courses</h3>
+          <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+            <FaList className="text-green-600" /> Offered Courses
+          </h3>
         </div>
         <table className="w-full text-sm">
           <thead className="bg-gray-100">
             <tr>
               <th className="p-3 text-left">Course</th>
-              <th className="p-3 text-left">Semester</th>
+              <th className="p-3 text-left">Department</th>
               <th className="p-3 text-left">Year</th>
               <th className="p-3 text-left">Students</th>
               <th className="p-3 text-left">Teachers</th>
@@ -224,20 +315,40 @@ const AdminCoursesOffered = ({ token }) => {
           <tbody>
             {offeredList.length === 0 ? (
               <tr>
-                <td colSpan="6" className="text-center py-6 text-gray-500 italic">No courses offered yet.</td>
+                <td
+                  colSpan="6"
+                  className="text-center py-6 text-gray-500 italic"
+                >
+                  No courses offered yet.
+                </td>
               </tr>
             ) : (
-              offeredList.map(o => (
+              offeredList.map((o) => (
                 <tr key={o._id} className="hover:bg-gray-50">
-                  <td className="p-3">{o.course?.title} <span className="text-xs text-gray-500">({o.course?.code})</span></td>
-                  <td className="p-3">Semester {o.semester}</td>
+                  <td className="p-3">
+                    {o.course?.title}{" "}
+                    <span className="text-xs text-gray-500">
+                      ({o.course?.code})
+                    </span>
+                  </td>
+                  <td className="p-3">{o.department}</td>
                   <td className="p-3">{o.year}</td>
                   <td className="p-3">{o.students?.length || 0}</td>
                   <td className="p-3">{o.teachers?.length || 0}</td>
                   <td className="p-3">
                     <div className="flex gap-2">
-                      <button onClick={() => handleEdit(o)} className="text-blue-600 hover:text-blue-800"><FaEdit /></button>
-                      <button onClick={() => handleDeleteOffered(o._id)} className="text-red-600 hover:text-red-800"><FaTrash /></button>
+                      <button
+                        onClick={() => handleEdit(o)}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteOffered(o._id)}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        <FaTrash />
+                      </button>
                     </div>
                   </td>
                 </tr>

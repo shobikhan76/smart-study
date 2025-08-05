@@ -5,12 +5,12 @@ const Teacher = require("../Model/Teacher");
 // Create a new course offering
 exports.createCourseOffered = async (req, res) => {
   try {
-    const { course, students, teachers, semester, year } = req.body;
+    const { course, students, teachers, department, year } = req.body;
     const offered = new CourseOffered({
       course,
       students: students || [],
       teachers: teachers || [],
-      semester,
+      department,
       year,
       createdBy: req.user._id,
     });
@@ -64,11 +64,13 @@ exports.getAllCoursesOffered = async (req, res) => {
 exports.updateCourseOffered = async (req, res) => {
   try {
     const { id } = req.params;
-    const { students, teachers } = req.body;
+    const { students, teachers, department, year } = req.body;
     const offered = await CourseOffered.findById(id);
     if (!offered) return res.status(404).json({ message: "Not found" });
     if (students) offered.students = students;
     if (teachers) offered.teachers = teachers;
+    if (department) offered.department = department;
+    if (year) offered.year = year;
     await offered.save();
     res.json(offered);
   } catch (err) {
@@ -91,7 +93,7 @@ exports.getMyCoursesOffered = async (req, res) => {
   try {
     // Find courses where the logged-in teacher is assigned
     const myCourses = await CourseOffered.find({ teachers: req.user.teacherId })
-    
+
       .populate({
         path: "course",
         select: "title code department",

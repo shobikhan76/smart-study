@@ -1,24 +1,37 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const upload = require('../Middleware/upload');
-const {verifyToken , isStudent} = require('../Middleware/authMiddleware');
+const upload = require("../Middleware/upload");
+const { verifyToken } = require("../Middleware/authMiddleware");
 const {
-  submitAssignment,
+  uploadAssignment,
+  getCourseAssignments,
   getStudentAssignments,
   getTeacherAssignments,
   deleteAssignment,
-} = require('../controllers/assignmentController');
+  markAssignment,
+} = require("../controllers/assignmentController");
 
-// 🧑‍🎓 Student submits assignment
-router.post('/', verifyToken, upload.single('pdf'), isStudent , submitAssignment);
+// Student or Teacher uploads assignment (PDF optional)
+router.post("/", verifyToken, upload.single("pdf"), uploadAssignment);
+
+// Get assignments for a course
+router.get("/course/:courseId", verifyToken, getCourseAssignments);
 
 // 🧑‍🎓 Student views their assignments
-router.get('/student', verifyToken, getStudentAssignments);
+router.get("/student", verifyToken, getStudentAssignments);
 
 // 👨‍🏫 Teacher views received assignments
-router.get('/teacher', verifyToken, getTeacherAssignments);
+router.get("/teacher", verifyToken, getTeacherAssignments);
+
+// Teacher marks assignment and uploads reply PDF (optional)
+router.post(
+  "/:id/mark",
+  verifyToken,
+  upload.single("replyPdf"),
+  markAssignment
+);
 
 // 🔥 Delete (admin or student cleanup)
-router.delete('/:id', verifyToken, deleteAssignment);
+router.delete("/:id", verifyToken, deleteAssignment);
 
 module.exports = router;

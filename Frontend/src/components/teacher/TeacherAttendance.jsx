@@ -38,13 +38,13 @@ const TeacherAttendance = ({
   const fetchAttendanceRecords = async (courseId) => {
     try {
       const res = await axios.get(
-  `http://localhost:5000/api/attendance/course/${courseId}`,
-  {
-    headers: {
-      Authorization: `Bearer ${token}`, // ✅ Ensure token is valid and passed correctly
-    },
-  }
-);
+        `http://localhost:5000/api/attendance/course/${courseId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // ✅ Ensure token is valid and passed correctly
+          },
+        }
+      );
       setAttendanceRecords(res.data);
     } catch {
       setAttendanceRecords([]);

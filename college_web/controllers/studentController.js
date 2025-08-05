@@ -2,6 +2,8 @@ const Student = require("../Model/Student");
 const User = require("../Model/User");
 const bcrypt = require("bcrypt");
 
+const allowedDepartments = ["IT", "CIVIL", "MECHANICS", "ELECTRICAL", "OTHER"];
+
 const createStudent = async (req, res) => {
   try {
     const {
@@ -10,11 +12,18 @@ const createStudent = async (req, res) => {
       password,
       registrationNumber,
       department,
-      semester,
       contact,
       address,
       courses = [],
     } = req.body;
+
+    // Validate department
+    if (!allowedDepartments.includes(department)) {
+      return res.status(400).json({
+        message:
+          "Invalid department. Allowed: IT, CIVIL, MECHANICS, ELECTRICAL, OTHER",
+      });
+    }
 
     // Check if user or student already exists
     const existingUser = await User.findOne({ email });
@@ -41,7 +50,6 @@ const createStudent = async (req, res) => {
       user: user._id,
       registrationNumber,
       department,
-      semester,
       contact,
       address,
       courses,
@@ -50,7 +58,7 @@ const createStudent = async (req, res) => {
 
     res.status(201).json({ message: "Student created successfully", student });
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err });
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
@@ -74,7 +82,6 @@ const updateStudent = async (req, res) => {
       password,
       registrationNumber,
       department,
-      semester,
       contact,
       address,
       courses = [],
@@ -96,7 +103,6 @@ const updateStudent = async (req, res) => {
     // Update student info
     student.registrationNumber = registrationNumber;
     student.department = department;
-    student.semester = semester;
     student.contact = contact;
     student.address = address;
     student.courses = courses;

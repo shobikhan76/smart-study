@@ -133,19 +133,8 @@ const AdminStudents = ({
             </div>
 
             {/* Semester */}
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                <FaCalendarAlt /> Semester
-              </label>
-              <input
-                type="text"
-                name="semester"
-                placeholder="e.g., 5"
-                value={studentForm.semester}
-                onChange={handleStudentFormChange}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
-              />
-            </div>
+           
+           
 
             {/* Contact */}
             <div className="space-y-1">
@@ -200,7 +189,7 @@ const AdminStudents = ({
                     password: "",
                     registrationNumber: "",
                     department: "",
-                    semester: "",
+                    // semester: "",
                     contact: "",
                     address: "",
                     courses: [],
@@ -258,7 +247,7 @@ const AdminStudents = ({
                     <td className="px-6 py-4 text-gray-600">{s.user?.email || s.email || "N/A"}</td>
                     <td className="px-6 py-4 text-gray-600 font-mono text-sm">{s.registrationNumber || "—"}</td>
                     <td className="px-6 py-4 text-gray-600">{s.department || "—"}</td>
-                    <td className="px-6 py-4 text-gray-600">{s.semester || "—"}</td>
+                    {/* <td className="px-6 py-4 text-gray-600">{s.semester || "—"}</td> */}
                     <td className="px-6 py-4 text-gray-600">{s.contact || "—"}</td>
                     <td className="px-6 py-4 text-gray-600 max-w-xs truncate" title={s.address}>
                       {s.address || "—"}

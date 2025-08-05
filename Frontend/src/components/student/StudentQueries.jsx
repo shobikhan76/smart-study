@@ -20,7 +20,7 @@ const StudentQueries = ({
         <option value="">Select Course</option>
         {courses.map((c) => (
           <option key={c._id} value={c._id}>
-            {c.course?.title || "Untitled"}
+            {c.course?.title || c.title}
           </option>
         ))}
       </select>
@@ -34,9 +34,9 @@ const StudentQueries = ({
       />
       <button
         type="submit"
-        className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+        className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
       >
-        Send Query
+        Submit Query
       </button>
     </form>
 
@@ -45,18 +45,14 @@ const StudentQueries = ({
       {queries.map((q) => (
         <li key={q._id} className="border-b pb-2">
           <div>
-            <strong>Course:</strong>{" "}
-            {courses.find((c) => c._id === q.courseId)?.course?.title || "N/A"}
-          </div>
-          <div>
-            <strong>Question:</strong> {q.question}
-          </div>
-          <div>
-            <strong>Reply:</strong>{" "}
+            <strong>{q.course?.title || "Course"}</strong>
+            <p className="text-gray-700">{q.question}</p>
             {q.reply ? (
-              <span className="text-green-700">{q.reply}</span>
+              <div className="mt-2 text-green-700">
+                <strong>Reply:</strong> {q.reply}
+              </div>
             ) : (
-              <span className="text-gray-500">No reply yet</span>
+              <div className="mt-2 text-gray-500">No reply yet.</div>
             )}
           </div>
         </li>
