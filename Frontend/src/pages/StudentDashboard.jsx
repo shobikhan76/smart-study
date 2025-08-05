@@ -1,54 +1,115 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { 
+  FaUser, 
+  FaBook, 
+  FaBullhorn, 
+  FaGraduationCap, 
+  FaCalendarCheck, 
+  FaTasks, 
+  FaClock, 
+  FaComments, 
+  FaChevronDown, 
+  FaChevronUp, 
+  FaCheckCircle, 
+  FaExclamationCircle, 
+  FaRegFilePdf, 
+  FaUpload, 
+  FaEye, 
+  FaRegStar 
+} from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
+
+// Import Components
 import StudentCourses from "../components/student/StudentCourses";
 import StudentAnnouncements from "../components/student/StudentAnnouncements";
 import StudentGrades from "../components/student/StudentGrades";
 import StudentTimetable from "../components/student/StudentTimetable";
 import StudentQueries from "../components/student/StudentQueries";
-import StudentProfiles from "../components/student/StudentProfiles"; // <-- import
+import StudentProfiles from "../components/student/StudentProfiles";
 import StudentAttendance from "../components/student/StudentAttendance";
 import StudentAssignments from "../components/student/StudentAssignments";
 
-const Sidebar = ({ selected, setSelected }) => (
-  <div className="w-64 bg-green-800 text-white min-h-screen p-6 flex flex-col gap-4">
-    <h2 className="text-2xl font-bold mb-8">Student Panel</h2>
-    {[
-      "profile",
-      "courses",
-      "announcements",
-      "grades",
-      "attendance",
-      "assignments", // <-- add assignments tab
-      "timetable",
-      "queries",
-    ].map((item) => (
-      <button
-        key={item}
-        className={`text-left px-4 py-2 rounded ${
-          selected === item ? "bg-green-600" : "hover:bg-green-700"
-        }`}
-        onClick={() => setSelected(item)}
-      >
-        {item.charAt(0).toUpperCase() + item.slice(1)}
-      </button>
-    ))}
-  </div>
-);
+// Sidebar with Modern Design
+const Sidebar = ({ selected, setSelected, darkMode = false }) => {
+  const menuItems = [
+    { name: "profile", label: "Profile", icon: FaUser },
+    { name: "courses", label: "Courses", icon: FaBook },
+    { name: "announcements", label: "Announcements", icon: FaBullhorn },
+    { name: "grades", label: "Grades", icon: FaGraduationCap },
+    { name: "attendance", label: "Attendance", icon: FaCalendarCheck },
+    { name: "assignments", label: "Assignments", icon: FaTasks },
+    { name: "timetable", label: "Timetable", icon: FaClock },
+    { name: "queries", label: "Queries", icon: FaComments },
+  ];
+
+  return (
+    <div className={`w-72 ${darkMode ? "bg-green-900 text-white" : "bg-gradient-to-b from-green-700 to-green-800"} min-h-screen p-6 transition-colors duration-300 shadow-xl`}>
+      <div className="flex items-center mb-10">
+        <div className="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+          <FaBook className="text-xl" />
+        </div>
+        <h2 className="text-2xl font-bold ml-3 text-white">Student Panel</h2>
+      </div>
+
+      <nav className="space-y-2">
+        {menuItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <button
+              key={item.name}
+              onClick={() => setSelected(item.name)}
+              className={`w-full flex items-center px-4 py-3 rounded-lg transition-all duration-200 text-left ${
+                selected === item.name
+                  ? "bg-white text-green-800 shadow-md transform translate-x-1"
+                  : "text-white hover:bg-green-600 hover:shadow hover:translate-x-1"
+              }`}
+            >
+              <Icon className="text-lg mr-3" />
+              <span className="font-medium">{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* Quick Stats */}
+      <div className="mt-8 p-4 bg-white bg-opacity-20 rounded-lg">
+        <h4 className="text-sm font-semibold text-white mb-2">Quick Stats</h4>
+        <div className="text-xs text-green-100">
+          <div className="flex justify-between mb-1">
+            <span>Courses:</span>
+            <span>5</span>
+          </div>
+          <div className="flex justify-between mb-1">
+            <span>Assignments:</span>
+            <span>3 Pending</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Attendance:</span>
+            <span>92%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const StudentDashboard = () => {
   const [selected, setSelected] = useState("courses");
   const [message, setMessage] = useState("");
+  const [toastType, setToastType] = useState("success");
+  const [darkMode, setDarkMode] = useState(false);
   const token = localStorage.getItem("token");
 
   // State
-  const [studentProfile, setStudentProfile] = useState(null); // <-- add
+  const [studentProfile, setStudentProfile] = useState(null);
   const [courses, setCourses] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [grades, setGrades] = useState([]);
   const [timetable, setTimetable] = useState([]);
   const [queries, setQueries] = useState([]);
   const [queryForm, setQueryForm] = useState({ courseId: "", question: "" });
-  const [attendance, setAttendance] = useState([]); // <-- add attendance state
+  const [attendance, setAttendance] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [assignmentForm, setAssignmentForm] = useState({
     course: "",
@@ -58,32 +119,54 @@ const StudentDashboard = () => {
     pdf: null,
   });
 
+  // Toast Notification Component
+  const Toast = ({ message, type, onClose }) => (
+    <div
+      className={`fixed top-4 right-4 z-50 flex items-center px-6 py-3 rounded-lg shadow-lg text-white font-medium transition-all duration-300 transform ${
+        type === "error" ? "bg-red-500" : "bg-green-500"
+      }`}
+    >
+      {type === "error" ? <FaExclamationCircle className="mr-2" /> : <FaCheckCircle className="mr-2" />}
+      <span>{message}</span>
+      <button onClick={onClose} className="ml-4 text-lg font-bold">&times;</button>
+    </div>
+  );
+
+  // Toggle dark mode
+  const toggleDarkMode = () => setDarkMode(!darkMode);
+
   // Fetch data
   useEffect(() => {
-    if (selected === "profile") fetchStudentProfile();
-    if (selected === "courses") fetchCourses();
-    if (selected === "announcements") fetchAnnouncements();
-    if (selected === "grades") fetchGrades();
-    if (selected === "attendance") fetchAttendance();
-    if (selected === "assignments") fetchAssignments(); // <-- fetch assignments
-    if (selected === "timetable") fetchTimetable();
-    if (selected === "queries") fetchQueries();
-    // eslint-disable-next-line
+    const fetchData = async () => {
+      try {
+        if (selected === "profile") await fetchStudentProfile();
+        if (selected === "courses") await fetchCourses();
+        if (selected === "announcements") await fetchAnnouncements();
+        if (selected === "grades") await fetchGrades();
+        if (selected === "attendance") await fetchAttendance();
+        if (selected === "assignments") await fetchAssignments();
+        if (selected === "timetable") await fetchTimetable();
+        if (selected === "queries") await fetchQueries();
+      } catch (err) {
+        console.error("Fetch error:", err);
+      }
+    };
+    fetchData();
   }, [selected, token]);
 
-  // Fetch student profile
+  // API Handlers
   const fetchStudentProfile = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/students/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setStudentProfile(res.data);
-    } catch {
+    } catch (err) {
       setMessage("Unable to load student profile.");
+      setToastType("error");
     }
   };
 
-  // 1. Courses
   const fetchCourses = async () => {
     try {
       const res = await axios.get(
@@ -91,24 +174,24 @@ const StudentDashboard = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setCourses(res.data);
-    } catch {
+    } catch (err) {
       setMessage("Unable to load your courses.");
+      setToastType("error");
     }
   };
 
-  // 2. Announcements
   const fetchAnnouncements = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/announcements", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setAnnouncements(res.data);
-    } catch {
+    } catch (err) {
       setMessage("Unable to load announcements.");
+      setToastType("error");
     }
   };
 
-  // 3. Grades
   const fetchGrades = async () => {
     try {
       const res = await axios.get(
@@ -118,30 +201,29 @@ const StudentDashboard = () => {
         }
       );
       setGrades(res.data);
-    } catch {
+    } catch (err) {
       setMessage("Unable to load grades.");
+      setToastType("error");
     }
   };
 
-  // 4. Timetable (placeholder)
   const fetchTimetable = async () => {
     // Implement API if available, else use static data
     setTimetable([]);
   };
 
-  // 5. Queries
   const fetchQueries = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/queries/student", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setQueries(res.data);
-    } catch {
+    } catch (err) {
       setMessage("Unable to load queries.");
+      setToastType("error");
     }
   };
 
-  // 6. Attendance (for student)
   const fetchAttendance = async () => {
     if (!studentProfile?._id) return;
     try {
@@ -150,13 +232,13 @@ const StudentDashboard = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setAttendance(res.data);
-    } catch {
+    } catch (err) {
       setAttendance([]);
       setMessage("Unable to load attendance.");
+      setToastType("error");
     }
   };
 
-  // 7. Assignments (for student)
   const fetchAssignments = async () => {
     try {
       const res = await axios.get(
@@ -164,23 +246,25 @@ const StudentDashboard = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setAssignments(res.data);
-    } catch {
+    } catch (err) {
       setAssignments([]);
       setMessage("Unable to load assignments.");
+      setToastType("error");
     }
   };
 
-  // Query form handlers
+  // Form Handlers
   const handleQueryChange = (e) => {
     setQueryForm({ ...queryForm, [e.target.name]: e.target.value });
   };
+
   const handleQuerySubmit = async (e) => {
     e.preventDefault();
     try {
       await axios.post(
         "http://localhost:5000/api/queries",
         {
-          course: queryForm.courseId, // <-- fix: use 'course'
+          course: queryForm.courseId,
           question: queryForm.question,
         },
         {
@@ -189,9 +273,11 @@ const StudentDashboard = () => {
       );
       setQueryForm({ courseId: "", question: "" });
       fetchQueries();
-      setMessage("Query sent!");
-    } catch {
+      setMessage("Query sent successfully!");
+      setToastType("success");
+    } catch (err) {
       setMessage("Failed to send query.");
+      setToastType("error");
     }
   };
 
@@ -227,63 +313,149 @@ const StudentDashboard = () => {
         pdf: null,
       });
       fetchAssignments();
-      setMessage("Assignment submitted!");
-    } catch {
+      setMessage("Assignment submitted successfully!");
+      setToastType("success");
+    } catch (err) {
       setMessage("Failed to submit assignment.");
+      setToastType("error");
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <Sidebar selected={selected} setSelected={setSelected} />
-      <div className="flex-1 p-8">
-        <div className="max-w-5xl mx-auto bg-white rounded-lg shadow p-8">
-          <h1 className="text-3xl font-bold mb-6 text-green-700">
-            Student Dashboard
-          </h1>
-          {message && <div className="mb-4 text-green-600">{message}</div>}
+    <div className={`flex min-h-screen transition-colors duration-300 ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}>
+      <Sidebar selected={selected} setSelected={setSelected} darkMode={darkMode} />
 
-          {selected === "profile" && (
-            <StudentProfiles student={studentProfile} />
-          )}
-          {selected === "courses" && (
-            <StudentCourses courses={courses} grades={grades} />
-          )}
-          {selected === "announcements" && (
-            <StudentAnnouncements announcements={announcements} />
-          )}
-          {selected === "grades" && (
-            <StudentGrades grades={grades} courses={courses} />
-          )}
-          {selected === "attendance" && (
-            <StudentAttendance
-              token={token}
-              studentId={studentProfile?._id}
-              attendance={attendance}
-            />
-          )}
-          {selected === "timetable" && (
-            <StudentTimetable timetable={timetable} courses={courses} />
-          )}
-          {selected === "queries" && (
-            <StudentQueries
-              queries={queries}
-              courses={courses}
-              queryForm={queryForm}
-              handleQueryChange={handleQueryChange}
-              handleQuerySubmit={handleQuerySubmit}
-            />
-          )}
-          {selected === "assignments" && (
-            <StudentAssignments
-              assignments={assignments}
-              courses={courses}
-              assignmentForm={assignmentForm}
-              handleAssignmentChange={handleAssignmentChange}
-              handleAssignmentSubmit={handleAssignmentSubmit}
-              handleFileChange={handleFileChange}
-            />
-          )}
+      <div className="flex-1 p-6 md:p-8 overflow-auto">
+        <div className={`max-w-6xl mx-auto rounded-xl shadow-lg overflow-hidden transition-colors duration-300 ${darkMode ? "bg-gray-800" : "bg-white"}`}>
+          {/* Header */}
+          <div className={`px-6 py-5 border-b ${darkMode ? "border-gray-700" : "border-gray-200"}`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <h1 className="text-3xl font-bold text-green-600 flex items-center">
+                  <FaBook className="mr-3" />
+                  Student Dashboard
+                </h1>
+              </div>
+              
+              <button
+                onClick={toggleDarkMode}
+                className={`p-2 rounded-lg ${
+                  darkMode ? "bg-gray-700 text-yellow-300" : "bg-green-100 text-green-800"
+                }`}
+              >
+                {darkMode ? <FaRegStar /> : <FaRegStar />}
+              </button>
+            </div>
+            
+            <p className={`mt-1 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+              Manage your academic journey and stay updated
+            </p>
+          </div>
+
+          {/* Content */}
+          <div className="p-6">
+            {message && <Toast message={message} type={toastType} onClose={() => setMessage("")} />}
+
+            {/* Profile Section */}
+            {selected === "profile" && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <StudentProfiles student={studentProfile} darkMode={darkMode} />
+              </motion.div>
+            )}
+
+            {/* Courses */}
+            {selected === "courses" && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <StudentCourses courses={courses} grades={grades} darkMode={darkMode} />
+              </motion.div>
+            )}
+
+            {/* Announcements */}
+            {selected === "announcements" && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <StudentAnnouncements announcements={announcements} darkMode={darkMode} />
+              </motion.div>
+            )}
+
+            {/* Grades */}
+            {selected === "grades" && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <StudentGrades grades={grades} courses={courses} darkMode={darkMode} />
+              </motion.div>
+            )}
+
+            {/* Attendance */}
+            {selected === "attendance" && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <StudentAttendance
+                  token={token}
+                  studentId={studentProfile?._id}
+                  attendance={attendance}
+                  darkMode={darkMode}
+                />
+              </motion.div>
+            )}
+
+            {/* Timetable */}
+            {selected === "timetable" && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <StudentTimetable timetable={timetable} courses={courses} darkMode={darkMode} />
+              </motion.div>
+            )}
+
+            {/* Queries */}
+            {selected === "queries" && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <StudentQueries
+                  queries={queries}
+                  courses={courses}
+                  queryForm={queryForm}
+                  handleQueryChange={handleQueryChange}
+                  handleQuerySubmit={handleQuerySubmit}
+                  darkMode={darkMode}
+                />
+              </motion.div>
+            )}
+
+            {/* Assignments */}
+            {selected === "assignments" && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <StudentAssignments
+                  assignments={assignments}
+                  courses={courses}
+                  assignmentForm={assignmentForm}
+                  handleAssignmentChange={handleAssignmentChange}
+                  handleAssignmentSubmit={handleAssignmentSubmit}
+                  handleFileChange={handleFileChange}
+                  darkMode={darkMode}
+                />
+              </motion.div>
+            )}
+          </div>
         </div>
       </div>
     </div>

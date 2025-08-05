@@ -7,7 +7,16 @@ import {
   FaClipboardList,
   FaGraduationCap,
   FaChartBar,
+  FaChevronDown,
+  FaChevronUp,
+  FaCheckCircle,
+  FaExclamationCircle,
+  FaRegStar,
+  FaRegFileAlt,
+  FaSun,
+  FaMoon
 } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 
 // Import Components
@@ -18,57 +27,105 @@ import AdminResults from "../components/admin/AdminResults";
 import AdminStudents from "../components/admin/AdminStudents";
 import AdminTeachers from "../components/admin/AdminTeachers";
 import AdminCoursesOffered from "../components/admin/AdminCoursesOffered";
-// import Navbar from "../components/Navbar";
 
-// Sidebar Navigation
-const Sidebar = ({ selected, setSelected }) => (
+// Sidebar Navigation with Custom Blue-Teal Theme
+const Sidebar = ({ selected, setSelected, darkMode = false }) => {
+  const menuItems = [
+    { key: "announcements", label: "Announcements", icon: FaBell },
+    { key: "courses", label: "Manage Courses", icon: FaBook },
+    { key: "teachers", label: "Manage Teachers", icon: FaChalkboardTeacher },
+    { key: "students", label: "Manage Students", icon: FaUsers },
+    { key: "applications", label: "Admission Applications", icon: FaClipboardList },
+    { key: "coursesOffered", label: "Courses Offered", icon: FaGraduationCap },
+    { key: "results", label: "Student Results", icon: FaChartBar },
+  ];
+
+  return (
+    <div className={`w-72 ${darkMode ? "bg-gradient-to-b from-teal-900 to-cyan-950" : "bg-gradient-to-b from-teal-700 to-teal-800"} text-white min-h-screen p-6 flex flex-col gap-2 shadow-xl`}>
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center justify-center w-12 h-12 bg-white bg-opacity-20 rounded-full mb-3">
+          <FaRegStar className="text-2xl" />
+        </div>
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-white to-teal-200 bg-clip-text text-transparent">
+          Admin Panel
+        </h2>
+      </div>
+
+      <nav className="space-y-2 flex-1">
+        {menuItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <button
+              key={item.key}
+              onClick={() => setSelected(item.key)}
+              className={`flex items-center gap-3 text-left px-4 py-3 rounded-xl transition-all duration-200 font-medium text-sm group ${
+                selected === item.key
+                  ? "bg-white/30 shadow-lg scale-105 font-semibold transform translate-x-1"
+                  : "hover:bg-white/20 hover:scale-102 hover:translate-x-1"
+              }`}
+            >
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 ${
+                selected === item.key 
+                  ? "bg-white text-teal-700" 
+                  : "bg-white/20 group-hover:bg-white/30"
+              }`}>
+                <Icon className="text-lg" />
+              </div>
+              <span className="flex-1 text-left">{item.label}</span>
+              {selected === item.key && (
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+              )}
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* Quick Stats */}
+      <div className={`p-4 rounded-xl backdrop-blur-sm ${darkMode ? "bg-teal-900/50" : "bg-white/20"} border ${darkMode ? "border-teal-800" : "border-teal-600"}`}>
+        <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+          <FaRegFileAlt /> Quick Stats
+        </h4>
+        <div className="space-y-2 text-xs">
+          <div className="flex justify-between">
+            <span>Students:</span>
+            <span className="font-medium">1,248</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Teachers:</span>
+            <span className="font-medium">89</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Courses:</span>
+            <span className="font-medium">45</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Applications:</span>
+            <span className="font-medium">23 pending</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Toast Notification Component
+const Toast = ({ message, type, onClose }) => (
   <div
-    className="w-64 bg-gradient-to-b from-red-800 to-red-950 text-white min-h-screen p-6 flex flex-col gap-2 shadow-xl
-"
+    className={`fixed top-4 right-4 z-50 flex items-center px-6 py-4 rounded-xl shadow-lg text-white font-medium transition-all duration-300 transform ${
+      type === "error" ? "bg-red-500" : "bg-green-500"
+    }`}
   >
-    <h2 className="text-2xl font-bold mb-8 text-center bg-gradient-to-r text-white  bg-clip-text text-transparent">
-      Admin Panel
-    </h2>
-
-    {[
-      { key: "announcements", label: "Announcements", icon: FaBell },
-      { key: "courses", label: "Manage Courses", icon: FaBook },
-      { key: "teachers", label: "Manage Teachers", icon: FaChalkboardTeacher },
-      { key: "students", label: "Manage Students", icon: FaUsers },
-      {
-        key: "applications",
-        label: "Admission Applications",
-        icon: FaClipboardList,
-      },
-      {
-        key: "coursesOffered",
-        label: "Courses Offered",
-        icon: FaGraduationCap,
-      },
-      // { key: "results", label: "Student Results", icon: FaChartBar },
-    ].map((item) => {
-      const Icon = item.icon;
-      return (
-        <button
-          key={item.key}
-          onClick={() => setSelected(item.key)}
-          className={`flex items-center gap-3 text-left px-4 py-3 rounded-lg transition-all duration-200 font-medium text-sm ${
-            selected === item.key
-              ? "bg-white/30 shadow-inner scale-105 font-semibold"
-              : "hover:bg-white/20 hover:scale-102"
-          }`}
-        >
-          <Icon className="text-lg" />
-          <span>{item.label}</span>
-        </button>
-      );
-    })}
+    {type === "error" ? <FaExclamationCircle className="mr-2" /> : <FaCheckCircle className="mr-2" />}
+    <span>{message}</span>
+    <button onClick={onClose} className="ml-4 text-lg font-bold">&times;</button>
   </div>
 );
 
 const AdminDashboard = () => {
   const [selected, setSelected] = useState("announcements");
   const [message, setMessage] = useState("");
+  const [toastType, setToastType] = useState("success");
+  const [darkMode, setDarkMode] = useState(false);
   const token = localStorage.getItem("token");
 
   // State for each module
@@ -77,7 +134,6 @@ const AdminDashboard = () => {
     title: "",
     content: "",
   });
-
   const [teachers, setTeachers] = useState([]);
   const [teacherForm, setTeacherForm] = useState({
     name: "",
@@ -88,7 +144,6 @@ const AdminDashboard = () => {
     contact: "",
   });
   const [editingTeacher, setEditingTeacher] = useState(null);
-
   const [students, setStudents] = useState([]);
   const [studentForm, setStudentForm] = useState({
     name: "",
@@ -101,7 +156,6 @@ const AdminDashboard = () => {
     courses: [],
   });
   const [editingStudent, setEditingStudent] = useState(null);
-
   const [courses, setCourses] = useState([]);
   const [courseForm, setCourseForm] = useState({
     title: "",
@@ -109,7 +163,6 @@ const AdminDashboard = () => {
     department: "",
   });
   const [editingCourse, setEditingCourse] = useState(null);
-
   const [applications, setApplications] = useState([]);
   const [applicationForm, setApplicationForm] = useState({
     name: "",
@@ -126,15 +179,24 @@ const AdminDashboard = () => {
     message: "",
   });
   const [editingApplication, setEditingApplication] = useState(null);
+  const [results, setResults] = useState([]);
 
   // Fetch data based on selected tab
   useEffect(() => {
-    if (selected === "announcements") fetchAnnouncements();
-    if (selected === "teachers") fetchTeachers();
-    if (selected === "students") fetchStudents();
-    if (selected === "courses") fetchCourses();
-    if (selected === "applications") fetchApplications();
-  }, [selected]);
+    const fetchData = async () => {
+      try {
+        if (selected === "announcements") await fetchAnnouncements();
+        if (selected === "teachers") await fetchTeachers();
+        if (selected === "students") await fetchStudents();
+        if (selected === "courses") await fetchCourses();
+        if (selected === "applications") await fetchApplications();
+        if (selected === "results") await fetchResults();
+      } catch (err) {
+        console.error("Fetch error:", err);
+      }
+    };
+    fetchData();
+  }, [selected, token]);
 
   const fetchAnnouncements = async () => {
     try {
@@ -144,6 +206,7 @@ const AdminDashboard = () => {
       setAnnouncements(res.data);
     } catch (e) {
       setMessage("Failed to load announcements.");
+      setToastType("error");
     }
   };
 
@@ -153,8 +216,9 @@ const AdminDashboard = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTeachers(res.data);
-    } catch {
+    } catch (e) {
       setMessage("Failed to fetch teachers.");
+      setToastType("error");
     }
   };
 
@@ -164,8 +228,9 @@ const AdminDashboard = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setStudents(res.data);
-    } catch {
+    } catch (e) {
       setMessage("Failed to fetch students.");
+      setToastType("error");
     }
   };
 
@@ -178,8 +243,9 @@ const AdminDashboard = () => {
         }
       );
       setCourses(res.data);
-    } catch {
+    } catch (e) {
       setMessage("Failed to fetch courses.");
+      setToastType("error");
     }
   };
 
@@ -192,10 +258,22 @@ const AdminDashboard = () => {
         }
       );
       setApplications(res.data);
-    } catch {
+    } catch (e) {
       setMessage("Failed to fetch applications.");
+      setToastType("error");
     }
   };
+
+  const fetchResults = async () => {
+    try {
+      // Implement results fetching
+      setResults([]);
+    } catch (e) {
+      setMessage("Failed to fetch results.");
+      setToastType("error");
+    }
+  };
+
   const handleApplicationUpdate = async (e) => {
     e.preventDefault();
     setMessage("");
@@ -205,7 +283,8 @@ const AdminDashboard = () => {
         applicationForm,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setMessage("✅ Application updated successfully!");
+      setMessage("Application updated successfully!");
+      setToastType("success");
       setEditingApplication(null);
       setApplicationForm({
         name: "",
@@ -221,10 +300,11 @@ const AdminDashboard = () => {
         status: "pending",
         message: "",
       });
-      fetchApplications(); // Refresh list
+      fetchApplications();
     } catch (error) {
       console.error("Update error:", error);
-      setMessage("❌ Failed to update application.");
+      setMessage("Failed to update application.");
+      setToastType("error");
     }
   };
 
@@ -248,10 +328,12 @@ const AdminDashboard = () => {
         }
       );
       setAnnouncementForm({ title: "", content: "" });
-      setMessage("✅ Announcement posted!");
+      setMessage("Announcement posted successfully!");
+      setToastType("success");
       fetchAnnouncements();
-    } catch {
-      setMessage("❌ Failed to post announcement.");
+    } catch (e) {
+      setMessage("Failed to post announcement.");
+      setToastType("error");
     }
   };
 
@@ -262,8 +344,11 @@ const AdminDashboard = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchAnnouncements();
-    } catch {
-      setMessage("❌ Failed to delete announcement.");
+      setMessage("Announcement deleted successfully!");
+      setToastType("success");
+    } catch (e) {
+      setMessage("Failed to delete announcement.");
+      setToastType("error");
     }
   };
 
@@ -290,7 +375,6 @@ const AdminDashboard = () => {
         );
         userId = userRes.data.newUser?._id || userRes.data.user?._id;
       }
-
       if (editingTeacher) {
         await axios.put(
           `http://localhost:5000/api/teachers/${editingTeacher._id}`,
@@ -301,16 +385,17 @@ const AdminDashboard = () => {
           },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setMessage("✅ Teacher updated!");
+        setMessage("Teacher updated successfully!");
+        setToastType("success");
       } else {
         await axios.post(
           "http://localhost:5000/api/teachers/create",
           { user: userId, ...teacherForm },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setMessage("✅ Teacher created!");
+        setMessage("Teacher created successfully!");
+        setToastType("success");
       }
-
       setTeacherForm({
         name: "",
         email: "",
@@ -321,8 +406,9 @@ const AdminDashboard = () => {
       });
       setEditingTeacher(null);
       fetchTeachers();
-    } catch {
-      setMessage("❌ Failed to create or update teacher.");
+    } catch (e) {
+      setMessage("Failed to create or update teacher.");
+      setToastType("error");
     }
   };
 
@@ -345,8 +431,11 @@ const AdminDashboard = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchTeachers();
-    } catch {
-      setMessage("❌ Failed to delete teacher.");
+      setMessage("Teacher deleted successfully!");
+      setToastType("success");
+    } catch (e) {
+      setMessage("Failed to delete teacher.");
+      setToastType("error");
     }
   };
 
@@ -370,7 +459,8 @@ const AdminDashboard = () => {
     ];
     for (const field of requiredFields) {
       if (!studentForm[field] || studentForm[field].toString().trim() === "") {
-        setMessage(`❌ Please fill all required fields (${field}).`);
+        setMessage(`Please fill all required fields (${field}).`);
+        setToastType("error");
         return;
       }
     }
@@ -381,16 +471,17 @@ const AdminDashboard = () => {
           studentForm,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setMessage("✅ Student updated!");
+        setMessage("Student updated successfully!");
+        setToastType("success");
       } else {
         await axios.post(
           "http://localhost:5000/api/students/create",
           studentForm,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setMessage("✅ Student created!");
+        setMessage("Student created successfully!");
+        setToastType("success");
       }
-
       setStudentForm({
         name: "",
         email: "",
@@ -405,9 +496,11 @@ const AdminDashboard = () => {
       fetchStudents();
     } catch (err) {
       if (err.response && err.response.data && err.response.data.message) {
-        setMessage(`❌ ${err.response.data.message}`);
+        setMessage(err.response.data.message);
+        setToastType("error");
       } else {
-        setMessage("❌ Failed to create or update student.");
+        setMessage("Failed to create or update student.");
+        setToastType("error");
       }
     }
   };
@@ -433,8 +526,11 @@ const AdminDashboard = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchStudents();
-    } catch {
-      setMessage("❌ Failed to delete student.");
+      setMessage("Student deleted successfully!");
+      setToastType("success");
+    } catch (e) {
+      setMessage("Failed to delete student.");
+      setToastType("error");
     }
   };
 
@@ -453,10 +549,12 @@ const AdminDashboard = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setCourseForm({ title: "", code: "", department: "" });
-      setMessage("✅ Course created!");
+      setMessage("Course created successfully!");
+      setToastType("success");
       fetchCourses();
-    } catch {
-      setMessage("❌ Failed to create course.");
+    } catch (e) {
+      setMessage("Failed to create course.");
+      setToastType("error");
     }
   };
 
@@ -476,8 +574,11 @@ const AdminDashboard = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchCourses();
-    } catch {
-      setMessage("❌ Failed to delete course.");
+      setMessage("Course deleted successfully!");
+      setToastType("success");
+    } catch (e) {
+      setMessage("Failed to delete course.");
+      setToastType("error");
     }
   };
 
@@ -511,106 +612,141 @@ const AdminDashboard = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchApplications();
-    } catch {
-      setMessage("❌ Failed to delete application.");
+      setMessage("Application deleted successfully!");
+      setToastType("success");
+    } catch (e) {
+      setMessage("Failed to delete application.");
+      setToastType("error");
     }
   };
 
+  // Toggle dark mode
+  const toggleDarkMode = () => setDarkMode(!darkMode);
+
   return (
-    <>
-      {/* <Navbar /> */}
-      <div className="flex min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-        <Sidebar selected={selected} setSelected={setSelected} />
-
-        <div className="flex-1 p-6 md:p-8">
-          <div className="max-w-6xl mx-auto bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-red-800 to-red-600 text-white p-6">
-              <h1 className="text-3xl font-bold flex items-center gap-3">
-                <FaUsers />
-                Admin Dashboard
-              </h1>
-              <p className="text-blue-100 mt-1">
-                Manage your university with ease and precision
-              </p>
-            </div>
-
-            {/* Message Alert */}
-            {message && (
-              <div
-                className={`p-4 text-center text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
-                  message.startsWith("✅")
-                    ? "bg-green-50 text-green-700 border-b border-green-100"
-                    : "bg-red-50 text-red-700 border-b border-red-100"
+    <div className={`flex min-h-screen transition-colors duration-300 ${darkMode ? "bg-gray-900" : "bg-gradient-to-br from-slate-50 to-slate-100"}`}>
+      <Sidebar selected={selected} setSelected={setSelected} darkMode={darkMode} />
+      
+      <div className="flex-1 p-6 md:p-8 overflow-auto">
+        <div className={`max-w-6xl mx-auto rounded-2xl shadow-xl overflow-hidden transition-colors duration-300 ${darkMode ? "bg-gray-800" : "bg-white/90 backdrop-blur-sm"}`}>
+          {/* Header */}
+          <div className="bg-gradient-to-r from-teal-700 to-cyan-800 text-white p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                  <FaUsers className="text-2xl" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+                  <p className="text-teal-100 mt-1">Manage your university with ease and precision</p>
+                </div>
+              </div>
+              
+              <button
+                onClick={toggleDarkMode}
+                className={`p-3 rounded-xl ${
+                  darkMode ? "bg-teal-900/50 text-yellow-300" : "bg-white/20 text-white"
                 }`}
               >
-                {message.startsWith("✅") ? (
-                  <span className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center text-white text-xs">
-                    ✓
-                  </span>
-                ) : (
-                  <span className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">
-                    !
-                  </span>
-                )}
-                {message.replace("✅", "").replace("❌", "").trim()}
-              </div>
-            )}
+                {darkMode ? <FaMoon /> : <FaSun />}
+              </button>
+            </div>
+          </div>
 
-            {/* Content */}
-            <div className="p-8">
-              {selected === "announcements" && (
+          {/* Message Alert */}
+          {message && <Toast message={message} type={toastType} onClose={() => setMessage("")} />}
+
+          {/* Content */}
+          <div className="p-8">
+            {selected === "announcements" && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
                 <AdminAnnouncements
                   announcements={announcements}
                   announcementForm={announcementForm}
                   handleAnnouncementChange={handleAnnouncementChange}
                   handleAnnouncementSubmit={handleAnnouncementSubmit}
                   handleDeleteAnnouncement={handleDeleteAnnouncement}
-                  message={message}
+                  darkMode={darkMode}
                 />
-              )}
-
-              {selected === "courses" && (
+              </motion.div>
+            )}
+            
+            {selected === "courses" && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
                 <>
                   {editingCourse && (
-                    <div className="mb-6 bg-blue-50 p-6 rounded-xl border border-blue-100">
-                      <h3 className="font-bold text-lg mb-4 text-blue-800 flex items-center gap-2">
+                    <div className={`mb-6 p-6 rounded-xl border transition-colors duration-200 ${
+                      darkMode 
+                        ? "bg-gray-900/50 border-gray-700" 
+                        : "bg-teal-50 border-teal-200"
+                    }`}>
+                      <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-teal-700 dark:text-teal-400">
                         <FaBook /> Edit Course
                       </h3>
                       <form onSubmit={handleCourseSubmit} className="space-y-4">
-                        <input
-                          type="text"
-                          name="title"
-                          placeholder="Course Title"
-                          value={courseForm.title}
-                          onChange={handleCourseChange}
-                          className="w-full px-4 py-3 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-300 focus:outline-none bg-white"
-                          required
-                        />
-                        <input
-                          type="text"
-                          name="code"
-                          placeholder="Course Code"
-                          value={courseForm.code}
-                          onChange={handleCourseChange}
-                          className="w-full px-4 py-3 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-300 focus:outline-none bg-white"
-                          required
-                        />
-                        <input
-                          type="text"
-                          name="department"
-                          placeholder="Department"
-                          value={courseForm.department}
-                          onChange={handleCourseChange}
-                          className="w-full px-4 py-3 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-300 focus:outline-none bg-white"
-                          required
-                        />
-                        <div className="flex gap-3 mt-4">
+                        <div>
+                          <label className="block text-sm font-semibold mb-2">Course Title</label>
+                          <input
+                            type="text"
+                            name="title"
+                            placeholder="Course Title"
+                            value={courseForm.title}
+                            onChange={handleCourseChange}
+                            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors duration-200 ${
+                              darkMode 
+                                ? "bg-gray-800 border-gray-600 focus:ring-teal-500 text-white" 
+                                : "bg-white border-teal-200 focus:ring-teal-300"
+                            }`}
+                            required
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-semibold mb-2">Course Code</label>
+                          <input
+                            type="text"
+                            name="code"
+                            placeholder="Course Code"
+                            value={courseForm.code}
+                            onChange={handleCourseChange}
+                            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors duration-200 ${
+                              darkMode 
+                                ? "bg-gray-800 border-gray-600 focus:ring-teal-500 text-white" 
+                                : "bg-white border-teal-200 focus:ring-teal-300"
+                            }`}
+                            required
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-semibold mb-2">Department</label>
+                          <input
+                            type="text"
+                            name="department"
+                            placeholder="Department"
+                            value={courseForm.department}
+                            onChange={handleCourseChange}
+                            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-colors duration-200 ${
+                              darkMode 
+                                ? "bg-gray-800 border-gray-600 focus:ring-teal-500 text-white" 
+                                : "bg-white border-teal-200 focus:ring-teal-300"
+                            }`}
+                            required
+                          />
+                        </div>
+                        
+                        <div className="flex gap-3 mt-6">
                           <button
                             type="submit"
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition"
+                            className="bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 flex items-center gap-2 shadow"
                           >
-                            Update Course
+                            <FaCheckCircle /> Update Course
                           </button>
                           <button
                             type="button"
@@ -622,7 +758,11 @@ const AdminDashboard = () => {
                                 department: "",
                               });
                             }}
-                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg font-medium transition"
+                            className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+                              darkMode 
+                                ? "bg-gray-700 hover:bg-gray-600 text-white" 
+                                : "bg-gray-300 hover:bg-gray-400 text-gray-800"
+                            }`}
                           >
                             Cancel
                           </button>
@@ -637,12 +777,17 @@ const AdminDashboard = () => {
                     handleCourseSubmit={handleCourseSubmit}
                     handleEditCourse={handleEditCourse}
                     handleDeleteCourse={handleDeleteCourse}
-                    message={message}
+                    darkMode={darkMode}
                   />
                 </>
-              )}
-
-              {selected === "teachers" && (
+              </motion.div>
+            )}
+            
+            {selected === "teachers" && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
                 <AdminTeachers
                   teachers={teachers}
                   teacherForm={teacherForm}
@@ -653,11 +798,16 @@ const AdminDashboard = () => {
                   editingTeacher={editingTeacher}
                   setEditingTeacher={setEditingTeacher}
                   setTeacherForm={setTeacherForm}
-                  message={message}
+                  darkMode={darkMode}
                 />
-              )}
-
-              {selected === "students" && (
+              </motion.div>
+            )}
+            
+            {selected === "students" && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
                 <AdminStudents
                   students={students}
                   studentForm={studentForm}
@@ -667,11 +817,16 @@ const AdminDashboard = () => {
                   handleDeleteStudent={handleDeleteStudent}
                   editingStudent={editingStudent}
                   setEditingStudent={setEditingStudent}
-                  message={message}
+                  darkMode={darkMode}
                 />
-              )}
-
-              {selected === "applications" && (
+              </motion.div>
+            )}
+            
+            {selected === "applications" && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
                 <AdminApplications
                   applications={applications}
                   applicationForm={applicationForm}
@@ -679,23 +834,34 @@ const AdminDashboard = () => {
                   handleEditApplication={handleEditApplication}
                   handleApplicationFormChange={handleApplicationFormChange}
                   handleDeleteApplication={handleDeleteApplication}
-                  message={message}
-                  handleApplicationUpdate={handleApplicationUpdate} // ✅ Add this
+                  darkMode={darkMode}
+                  handleApplicationUpdate={handleApplicationUpdate}
                   setEditingApplication={setEditingApplication}
                 />
-              )}
-
-              {selected === "results" && (
-                <AdminResults results={results} message={message} />
-              )}
-              {selected === "coursesOffered" && (
-                <AdminCoursesOffered token={token} />
-              )}
-            </div>
+              </motion.div>
+            )}
+            
+            {selected === "results" && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <AdminResults results={results} darkMode={darkMode} />
+              </motion.div>
+            )}
+            
+            {selected === "coursesOffered" && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <AdminCoursesOffered token={token} darkMode={darkMode} />
+              </motion.div>
+            )}
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
