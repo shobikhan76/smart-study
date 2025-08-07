@@ -4,7 +4,9 @@ const TeacherProfiles = ({ teacher }) => {
   if (!teacher)
     return (
       <div className="flex items-center justify-center h-40">
-        <div className="animate-pulse text-gray-400 text-lg">Loading profile...</div>
+        <div className="animate-pulse text-gray-400 text-lg">
+          Loading profile...
+        </div>
       </div>
     );
   return (

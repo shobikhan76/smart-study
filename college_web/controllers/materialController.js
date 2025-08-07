@@ -4,10 +4,15 @@ const mongoose = require("mongoose");
 // Teacher uploads material (PDF)
 exports.uploadMaterial = async (req, res) => {
   try {
-    const { course, title } = req.body;
+    // Accept both 'course' and 'courseId' for compatibility
+    const course = req.body.course || req.body.courseId;
+    const { title } = req.body;
     const file = req.file;
     const teacherId = req.user.teacherId || req.user._id;
-    console.log("UploadMaterial received:", { course, title, file, teacherId });
+
+    // Debug: log received fields
+    // console.log("UploadMaterial received:", { course, title, file, teacherId });
+
     if (!course || !title || !file) {
       return res
         .status(400)
@@ -53,7 +58,7 @@ exports.getTeacherMaterials = async (req, res) => {
   try {
     const teacherId = req.user.teacherId || req.user._id;
     const materials = await Material.find({ teacher: teacherId })
-      .populate("course", "title code")
+      .populate("course", "title code department") // ensure title is populated
       .sort({ createdAt: -1 });
     res.json(materials);
   } catch (err) {

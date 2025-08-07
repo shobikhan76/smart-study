@@ -120,7 +120,7 @@ const TeacherDashboard = () => {
 
   // Forms
   const [announcementForm, setAnnouncementForm] = useState({ title: "", content: "" });
-  const [uploadForm, setUploadForm] = useState({ courseId: "", title: "", file: null });
+  const [uploadForm, setUploadForm] = useState({ course: "", title: "", file: null });
   const [assignmentForm, setAssignmentForm] = useState({
     course: "",
     title: "",
@@ -277,7 +277,7 @@ const TeacherDashboard = () => {
   const handleUploadSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append("courseId", uploadForm.courseId);
+    formData.append("course", uploadForm.course);
     formData.append("title", uploadForm.title);
     formData.append("file", uploadForm.file);
 
@@ -288,7 +288,7 @@ const TeacherDashboard = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      setUploadForm({ courseId: "", title: "", file: null });
+      setUploadForm({ course: "", title: "", file: null });
       fetchMaterials();
       setMessage("Material uploaded!");
       setToastType("success");
@@ -474,7 +474,15 @@ const TeacherDashboard = () => {
                   <TeacherGrades courses={courses} grades={grades} students={students} fetchStudentsInCourse={fetchStudentsInCourse} handleGradeSubmit={handleGradeSubmit} darkMode={darkMode} />
                 )}
                 {selected === "materials" && (
-                  <TeacherMaterials courses={courses} materials={materials} uploadForm={uploadForm} setUploadForm={setUploadForm} handleFileChange={handleFileChange} handleUploadSubmit={handleUploadSubmit} darkMode={darkMode} />
+                  <TeacherMaterials
+                    courses={courses}
+                    materials={materials}
+                    uploadForm={uploadForm}
+                    setUploadForm={setUploadForm}
+                    handleFileChange={handleFileChange}
+                    handleUploadSubmit={handleUploadSubmit}
+                    darkMode={darkMode}
+                  />
                 )}
                 {selected === "announcements" && (
                   <TeacherAnnouncements

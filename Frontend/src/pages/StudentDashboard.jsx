@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { 
-  FaUser, 
-  FaBook, 
-  FaBullhorn, 
-  FaGraduationCap, 
-  FaCalendarCheck, 
-  FaTasks, 
-  FaClock, 
-  FaComments, 
-  FaChevronDown, 
-  FaChevronUp, 
-  FaCheckCircle, 
-  FaExclamationCircle, 
-  FaRegFilePdf, 
-  FaUpload, 
-  FaEye, 
-  FaRegStar 
+import {
+  FaUser,
+  FaBook,
+  FaBullhorn,
+  FaGraduationCap,
+  FaCalendarCheck,
+  FaTasks,
+  FaClock,
+  FaComments,
+  FaChevronDown,
+  FaChevronUp,
+  FaCheckCircle,
+  FaExclamationCircle,
+  FaRegFilePdf,
+  FaUpload,
+  FaEye,
+  FaRegStar,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -29,6 +29,7 @@ import StudentQueries from "../components/student/StudentQueries";
 import StudentProfiles from "../components/student/StudentProfiles";
 import StudentAttendance from "../components/student/StudentAttendance";
 import StudentAssignments from "../components/student/StudentAssignments";
+import StudentMaterials from "../components/student/StudentMaterials";
 
 // Sidebar with Modern Design
 const Sidebar = ({ selected, setSelected, darkMode = false }) => {
@@ -39,12 +40,19 @@ const Sidebar = ({ selected, setSelected, darkMode = false }) => {
     { name: "grades", label: "Grades", icon: FaGraduationCap },
     { name: "attendance", label: "Attendance", icon: FaCalendarCheck },
     { name: "assignments", label: "Assignments", icon: FaTasks },
+    { name: "materials", label: "Materials", icon: FaRegFilePdf },
     { name: "timetable", label: "Timetable", icon: FaClock },
     { name: "queries", label: "Queries", icon: FaComments },
   ];
 
   return (
-    <div className={`w-72 ${darkMode ? "bg-green-900 text-white" : "bg-gradient-to-b from-green-700 to-green-800"} min-h-screen p-6 transition-colors duration-300 shadow-xl`}>
+    <div
+      className={`w-72 ${
+        darkMode
+          ? "bg-green-900 text-white"
+          : "bg-gradient-to-b from-green-700 to-green-800"
+      } min-h-screen p-6 transition-colors duration-300 shadow-xl`}
+    >
       <div className="flex items-center mb-10">
         <div className="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
           <FaBook className="text-xl" />
@@ -118,6 +126,7 @@ const StudentDashboard = () => {
     dueDate: "",
     pdf: null,
   });
+  const [materials, setMaterials] = useState([]);
 
   // Toast Notification Component
   const Toast = ({ message, type, onClose }) => (
@@ -126,9 +135,15 @@ const StudentDashboard = () => {
         type === "error" ? "bg-red-500" : "bg-green-500"
       }`}
     >
-      {type === "error" ? <FaExclamationCircle className="mr-2" /> : <FaCheckCircle className="mr-2" />}
+      {type === "error" ? (
+        <FaExclamationCircle className="mr-2" />
+      ) : (
+        <FaCheckCircle className="mr-2" />
+      )}
       <span>{message}</span>
-      <button onClick={onClose} className="ml-4 text-lg font-bold">&times;</button>
+      <button onClick={onClose} className="ml-4 text-lg font-bold">
+        &times;
+      </button>
     </div>
   );
 
@@ -147,12 +162,13 @@ const StudentDashboard = () => {
         if (selected === "assignments") await fetchAssignments();
         if (selected === "timetable") await fetchTimetable();
         if (selected === "queries") await fetchQueries();
+        if (selected === "materials") await fetchMaterials();
       } catch (err) {
         console.error("Fetch error:", err);
       }
     };
     fetchData();
-  }, [selected, token]);
+  }, [selected, token, courses]);
 
   // API Handlers
   const fetchStudentProfile = async () => {
@@ -253,6 +269,31 @@ const StudentDashboard = () => {
     }
   };
 
+  const fetchMaterials = async () => {
+    try {
+      // Fetch for each course and flatten the results
+      const allMaterials = [];
+      for (const c of courses) {
+        const courseId = c.course?._id || c._id;
+        if (!courseId) continue;
+        const res = await axios.get(
+          `http://localhost:5000/api/materials/course/${courseId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        // Attach course info for display
+        res.data.forEach((m) => {
+          m._courseInfo = c.course || c;
+        });
+        allMaterials.push(...res.data);
+      }
+      setMaterials(allMaterials);
+    } catch (err) {
+      setMaterials([]);
+      setMessage("Unable to load materials.");
+      setToastType("error");
+    }
+  };
+
   // Form Handlers
   const handleQueryChange = (e) => {
     setQueryForm({ ...queryForm, [e.target.name]: e.target.value });
@@ -322,13 +363,29 @@ const StudentDashboard = () => {
   };
 
   return (
-    <div className={`flex min-h-screen transition-colors duration-300 ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}>
-      <Sidebar selected={selected} setSelected={setSelected} darkMode={darkMode} />
+    <div
+      className={`flex min-h-screen transition-colors duration-300 ${
+        darkMode ? "bg-gray-900" : "bg-gray-50"
+      }`}
+    >
+      <Sidebar
+        selected={selected}
+        setSelected={setSelected}
+        darkMode={darkMode}
+      />
 
       <div className="flex-1 p-6 md:p-8 overflow-auto">
-        <div className={`max-w-6xl mx-auto rounded-xl shadow-lg overflow-hidden transition-colors duration-300 ${darkMode ? "bg-gray-800" : "bg-white"}`}>
+        <div
+          className={`max-w-6xl mx-auto rounded-xl shadow-lg overflow-hidden transition-colors duration-300 ${
+            darkMode ? "bg-gray-800" : "bg-white"
+          }`}
+        >
           {/* Header */}
-          <div className={`px-6 py-5 border-b ${darkMode ? "border-gray-700" : "border-gray-200"}`}>
+          <div
+            className={`px-6 py-5 border-b ${
+              darkMode ? "border-gray-700" : "border-gray-200"
+            }`}
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <h1 className="text-3xl font-bold text-green-600 flex items-center">
@@ -336,25 +393,35 @@ const StudentDashboard = () => {
                   Student Dashboard
                 </h1>
               </div>
-              
+
               <button
                 onClick={toggleDarkMode}
                 className={`p-2 rounded-lg ${
-                  darkMode ? "bg-gray-700 text-yellow-300" : "bg-green-100 text-green-800"
+                  darkMode
+                    ? "bg-gray-700 text-yellow-300"
+                    : "bg-green-100 text-green-800"
                 }`}
               >
                 {darkMode ? <FaRegStar /> : <FaRegStar />}
               </button>
             </div>
-            
-            <p className={`mt-1 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+
+            <p
+              className={`mt-1 ${darkMode ? "text-gray-400" : "text-gray-600"}`}
+            >
               Manage your academic journey and stay updated
             </p>
           </div>
 
           {/* Content */}
           <div className="p-6">
-            {message && <Toast message={message} type={toastType} onClose={() => setMessage("")} />}
+            {message && (
+              <Toast
+                message={message}
+                type={toastType}
+                onClose={() => setMessage("")}
+              />
+            )}
 
             {/* Profile Section */}
             {selected === "profile" && (
@@ -372,7 +439,11 @@ const StudentDashboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <StudentCourses courses={courses} grades={grades} darkMode={darkMode} />
+                <StudentCourses
+                  courses={courses}
+                  grades={grades}
+                  darkMode={darkMode}
+                />
               </motion.div>
             )}
 
@@ -382,7 +453,10 @@ const StudentDashboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <StudentAnnouncements announcements={announcements} darkMode={darkMode} />
+                <StudentAnnouncements
+                  announcements={announcements}
+                  darkMode={darkMode}
+                />
               </motion.div>
             )}
 
@@ -392,7 +466,11 @@ const StudentDashboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <StudentGrades grades={grades} courses={courses} darkMode={darkMode} />
+                <StudentGrades
+                  grades={grades}
+                  courses={courses}
+                  darkMode={darkMode}
+                />
               </motion.div>
             )}
 
@@ -417,7 +495,11 @@ const StudentDashboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <StudentTimetable timetable={timetable} courses={courses} darkMode={darkMode} />
+                <StudentTimetable
+                  timetable={timetable}
+                  courses={courses}
+                  darkMode={darkMode}
+                />
               </motion.div>
             )}
 
@@ -453,6 +535,16 @@ const StudentDashboard = () => {
                   handleFileChange={handleFileChange}
                   darkMode={darkMode}
                 />
+              </motion.div>
+            )}
+
+            {/* Materials */}
+            {selected === "materials" && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <StudentMaterials materials={materials} darkMode={darkMode} />
               </motion.div>
             )}
           </div>

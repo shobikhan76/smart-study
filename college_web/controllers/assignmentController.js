@@ -6,35 +6,36 @@ const uploadAssignment = async (req, res) => {
   try {
     const { course, title, description, dueDate } = req.body;
     const file = req.file;
-    let uploadedBy, teacherId, studentId;
+    // Accept both 'pdf' and 'file' field for compatibility
+    const pdfFile = file || req.files?.pdf || req.files?.file;
 
     // Validate required fields
-    if (!course || !title || !file) {
+    if (!course || !title || !pdfFile) {
       return res
         .status(400)
         .json({ message: "Course, title, and PDF file are required." });
     }
 
-    if (req.user.role === "student") {
-      uploadedBy = "student";
-      studentId = req.user.id;
-    } else if (req.user.role === "teacher") {
-      uploadedBy = "teacher";
-      teacherId = req.user.id;
-    } else {
-      return res.status(403).json({ message: "Unauthorized" });
-    }
-
-    const assignment = new Assignment({
+    const assignmentData = {
       course,
       title,
       description,
       dueDate,
-      fileUrl: file ? `/uploads/assignments/${file.filename}` : undefined,
-      uploadedBy,
-      student: studentId,
-      teacher: teacherId,
-    });
+      fileUrl: `/uploads/assignments/${pdfFile.filename}`,
+      uploadedBy: "",
+    };
+
+    if (req.user.role === "student") {
+      assignmentData.uploadedBy = "student";
+      assignmentData.student = req.user.id;
+    } else if (req.user.role === "teacher") {
+      assignmentData.uploadedBy = "teacher";
+      assignmentData.teacher = req.user.id;
+    } else {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    const assignment = new Assignment(assignmentData);
 
     await assignment.save();
     res

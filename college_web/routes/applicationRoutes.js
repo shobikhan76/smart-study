@@ -15,9 +15,12 @@ const { verifyToken, isAdmin , isTeacher } = require('../middleware/authMiddlewa
 
 // User Routes
 router.post('/', verifyToken, createApplication);
-router.put('/:id', verifyToken, updateApplication);
-router.delete('/:id', verifyToken, deleteApplication);
+router.get('/me', verifyToken, getMyApplication); // <-- already present
 router.get('/', verifyToken,  getMyApplication);
+
+// Fix: Add user update/delete routes BEFORE admin routes and use correct path
+router.put('/:id', verifyToken, updateApplication); // <-- must be before /admin/:id
+router.delete('/:id', verifyToken, deleteApplication); // <-- must be before /admin/:id
 
 // Admin Routes
 router.get('/admin/all', verifyToken, isAdmin, getAllApplications);

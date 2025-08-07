@@ -1,34 +1,33 @@
 const jwt = require("jsonwebtoken");
 const User = require("../Model/User");
 const Teacher = require("../Model/Teacher");
-const Student = require("../Model/Student");
+const Student = require("../Model/Student"); 
 
-// Middleware: Verify JWT and Attach User + Role-Specific Reference
+// Middleware: Verify JWT and attach user info to request
 const verifyToken = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res
-        .status(401)
-        .json({ message: "Access denied. No token provided." });
+      return res.status(401).json({ message: "Access denied. No token provided." });
     }
 
     const token = authHeader.split(" ")[1];
-    // Debug log
-    // console.log("Received token:", token);
-
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const user = await User.findById(decoded.id).select("-password");
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-    req.user = { id: decoded.id, role: user.role };
+    // Attach user info to request
+    req.user = {
+      id: user._id,
+      role: user.role,
+      email: user.email,
+    };
 
-    // Debug log
-    // console.log("Authenticated user:", req.user);
-
-    // Attach related reference ID based on role
+    // Add role-specific reference IDs
     if (user.role === "teacher") {
       const teacher = await Teacher.findOne({ user: user._id });
       if (teacher) req.user.teacherId = teacher._id;
@@ -44,7 +43,7 @@ const verifyToken = async (req, res, next) => {
   }
 };
 
-// Middleware: Check if user is Admin
+// Middleware: Allow only Admin
 const isAdmin = (req, res, next) => {
   if (req.user?.role !== "admin") {
     return res.status(403).json({ message: "Access denied: Admin only" });
@@ -52,7 +51,7 @@ const isAdmin = (req, res, next) => {
   next();
 };
 
-// Middleware: Check if user is Teacher
+// Middleware: Allow only Teacher
 const isTeacher = (req, res, next) => {
   if (req.user?.role !== "teacher") {
     return res.status(403).json({ message: "Access denied: Teacher only" });
@@ -60,7 +59,7 @@ const isTeacher = (req, res, next) => {
   next();
 };
 
-// Middleware: Check if user is Student
+// Middleware: Allow only Student
 const isStudent = (req, res, next) => {
   if (req.user?.role !== "student") {
     return res.status(403).json({ message: "Access denied: Student only" });
@@ -72,7 +71,5 @@ module.exports = {
   verifyToken,
   isAdmin,
   isTeacher,
-  isStudent,
-
   isStudent,
 };

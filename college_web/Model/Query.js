@@ -14,6 +14,7 @@ const querySchema = new mongoose.Schema(
     },
     question: { type: String, required: true },
     reply: { type: String },
+    repliedAt: { type: Date }, // <-- add this
     teacher: { type: mongoose.Schema.Types.ObjectId, ref: "Teacher" }, // optional, for reply
   },
   { timestamps: true }
