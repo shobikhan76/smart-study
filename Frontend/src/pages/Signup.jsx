@@ -48,7 +48,7 @@ const Signup = () => {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="relative w-full max-w-md p-8 rounded-2xl bg-white/20 backdrop-blur-xl shadow-2xl border border-white/30 text-white z-10"
+        className="relative w-full max-w-md p-8 rounded-2xl bg-[#01112b] backdrop-blur-xl shadow-2xl border border-white/30 text-white z-10"
       >
         <h2 className="text-3xl font-bold text-center mb-2 tracking-tight">
           Create an Account
@@ -121,7 +121,7 @@ const Signup = () => {
           <p className="text-sm text-white/90">
             Already have an account?{" "}
             <Link
-              to="/LMSLogin"
+              to="/LMS"
               className="font-medium text-blue-200 hover:text-white underline transition"
             >
               Login

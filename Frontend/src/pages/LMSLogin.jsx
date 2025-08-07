@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import {Link, useNavigate } from "react-router-dom";
 import heroimage2 from "../assets/GIK.jpg";
 
 const LMSLogin = () => {
@@ -39,8 +39,8 @@ const LMSLogin = () => {
       className="min-h-screen bg-cover bg-center relative"
       style={{ backgroundImage: `url(${heroimage2})` }}
     >
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-        <div className="w-full max-w-md bg-white/30 backdrop-blur-md p-8 rounded-xl shadow-xl border border-white/20">
+      <div className="absolute inset-0  flex items-center justify-center">
+        <div className="w-full max-w-md bg-[#01112b] p-8 rounded-xl shadow-xl border border-white/20">
           <h2 className="text-3xl font-bold text-center text-white mb-6">LMS Login</h2>
 
           <form onSubmit={handleLogin} className="space-y-5 text-white">
@@ -82,6 +82,16 @@ const LMSLogin = () => {
               Reset
             </span>
           </p>
+           <p className="text-sm text-white/90 text-center mt-4">
+        <span>Not Registered </span>
+            <Link
+              to="/Apply"
+              className="font-medium text-blue-200 hover:text-white underline transition"
+            >
+              Signup
+            </Link>
+          </p>
+         
         </div>
       </div>
     </div>

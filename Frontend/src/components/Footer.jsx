@@ -9,7 +9,7 @@ const Footer = () => {
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 1, ease: "easeOut" }}
       viewport={{ once: true }}
-      className="bg-gradient-to-b from-[#a82034] to-[#8c1a2b] text-white px-6 md:px-12 py-16"
+      className="bg-gradient-to-r from-[#01112b] to-[#022355] text-white px-6 md:px-12 py-16"
     >
       {/* Top Section */}
       <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-10 mb-12">

@@ -20,7 +20,7 @@ const Hero = ({
     },
     {
       id: 2,
-      title: "Empowering Future Innovators.",
+      title:  "Empowering Future Innovators.",
       description:
         "Join a culture of innovation and leadership to shape tomorrow.",
       image: gik,
@@ -47,7 +47,7 @@ const Hero = ({
       autoplay={{ delay: 3000, disableOnInteraction: false }}
       pagination={{ clickable: true }}
       loop={true}
-      className="h-screen"
+      className="h-screen border-b-7  border-[#01112b]"
     >
       {slides.map((slide) => (
         <SwiperSlide key={slide.id}>
@@ -60,12 +60,12 @@ const Hero = ({
 
             {/* Bottom-Left Content with Border Line */}
             <div className="absolute bottom-12 left-12 z-20 max-w-xl text-white">
-              <div className="border-l-4 border-red-600 pl-6">
+              <div className="border-l-9 border-[#c89e05cf] pl-6">
                 <h1 className="text-3xl sm:text-5xl font-bold mb-3">
                   {slide.title}
                 </h1>
                 <p className="text-md sm:text-lg mb-4">{slide.description}</p>
-               <button className="flex items-center gap-2 bg-white/20 backdrop-blur-sm border border-white/30 text-white px-6 py-2 rounded-full font-semibold hover:bg-red-600 hover:text-white transition-all duration-300">
+               <button className="flex items-center gap-2 bg-white/20 backdrop-blur-sm border border-white/30 text-white px-6 py-2 rounded-full font-semibold hover:bg-[#01112b] hover:text-white transition-all duration-300">
   <FaPlayCircle className="text-xl text-white" />
   Watch Tour
 </button>
