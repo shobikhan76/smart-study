@@ -20,6 +20,4 @@ router.get("/student/me", verifyToken, checkRole("student"), getMyGrades);
 // ✅ Any authenticated student can view their own grades by ID
 router.get("/student/:studentId", verifyToken, getStudentGrades);
 
-
-
 module.exports = router;

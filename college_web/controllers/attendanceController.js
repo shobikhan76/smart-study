@@ -1,4 +1,4 @@
-const Attendance = require("../Model/Attendance");
+const Attendance = require("../Model/attendance");
 
 // ✅ Mark attendance
 const markAttendance = async (req, res) => {
@@ -19,12 +19,10 @@ const markAttendance = async (req, res) => {
       insertedRecords.push(newRecord);
     }
 
-    res
-      .status(201)
-      .json({
-        message: "Attendance marked successfully",
-        inserted: insertedRecords,
-      });
+    res.status(201).json({
+      message: "Attendance marked successfully",
+      inserted: insertedRecords,
+    });
   } catch (error) {
     console.error("Attendance error:", error);
     res.status(500).json({ message: "Failed to mark attendance", error });
@@ -82,12 +80,10 @@ const getAttendancePercentage = async (req, res) => {
       attendancePercentage: `${percentage}%`,
     });
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        message: "Failed to calculate attendance percentage",
-        error: err,
-      });
+    res.status(500).json({
+      message: "Failed to calculate attendance percentage",
+      error: err,
+    });
   }
 };
 

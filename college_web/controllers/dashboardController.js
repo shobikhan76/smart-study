@@ -2,7 +2,7 @@ const Student = require("../Model/Student");
 const Teacher = require("../Model/Teacher");
 const Course = require("../Model/Course");
 const Application = require("../Model/Application");
-const Attendance = require("../Model/Attendance");
+const Attendance = require("../Model/attendance");
 
 const getDashboardSummary = async (req, res) => {
   try {
