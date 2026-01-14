@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance";
 import {Link, useNavigate } from "react-router-dom";
 import heroimage2 from "../assets/GIK.jpg";
 
@@ -11,7 +11,7 @@ const LMSLogin = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/api/users/login", {
+      const res = await axiosInstance.post("/api/users/login", {
         email,
         password,
       });
