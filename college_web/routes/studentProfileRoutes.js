@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const studentProfileController = require('../controllers/studentProfileController');
+const studentProfileController = require('../controllers/StudentProfileController');
 const { verifyToken , isAdmin } = require('../Middleware/authMiddleware');
 // optional if you use roles
 
