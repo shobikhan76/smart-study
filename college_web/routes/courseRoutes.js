@@ -4,7 +4,7 @@ const {
   createCourse,
   getAllCourses,
 } = require("../controllers/courseController");
-const { verifyToken, isAdmin } = require("../middleware/authMiddleware");
+const { verifyToken, isAdmin } = require("../Middleware/authMiddleware");
 
 // ✅ Only admin can create a course
 router.post("/createCourse", verifyToken, isAdmin, createCourse);

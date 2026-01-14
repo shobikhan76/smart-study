@@ -9,7 +9,7 @@ const {
   getTeacherProfile,
 } = require("../controllers/teacherController");
 
-const { verifyToken } = require("../middleware/authMiddleware");
+const { verifyToken } = require("../Middleware/authMiddleware");
 const checkRole = require("../Middleware/roleMiddleware");
 
 // ✅ Only admins can create teachers

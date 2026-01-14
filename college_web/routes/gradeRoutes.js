@@ -7,7 +7,7 @@ const {
   getMyGrades,
 } = require("../controllers/gradeController");
 
-const { verifyToken } = require("../middleware/authMiddleware");
+const { verifyToken } = require("../Middleware/authMiddleware");
 const checkRole = require("../Middleware/roleMiddleware");
 
 // ✅ Only teachers and admins can assign grades

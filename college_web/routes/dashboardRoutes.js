@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { getDashboardSummary } = require('../controllers/dashboardController');
-const { verifyToken } = require('../middleware/authMiddleware');
+const { verifyToken } = require('../Middleware/authMiddleware');
 const checkRole = require('../Middleware/roleMiddleware');
 
 // ✅ Only admin can access dashboard summary

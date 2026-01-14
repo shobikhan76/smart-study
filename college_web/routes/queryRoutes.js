@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const ctrl = require("../controllers/queryController");
-const { verifyToken } = require("../middleware/authMiddleware");
+const { verifyToken } = require("../Middleware/authMiddleware");
 const checkRole = require("../Middleware/roleMiddleware");
 
 // Student posts a query

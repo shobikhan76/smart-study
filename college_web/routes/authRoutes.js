@@ -9,7 +9,7 @@ const {
 } = require("../controllers/authController");
 const User = require("../Model/User");
 
-const { verifyToken, isAdmin } = require("../middleware/authMiddleware");
+const { verifyToken, isAdmin } = require("../Middleware/authMiddleware");
 
 // Public routes
 router.post("/register", registerUser);

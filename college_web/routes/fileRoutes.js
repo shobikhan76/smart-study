@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const upload = require('../utils/multer');
-const { verifyToken } = require('../middleware/authMiddleware');
+const { verifyToken } = require('../Middleware/authMiddleware');
 const { uploadFile } = require('../controllers/fileController');
 
 // ✅ Upload assignment (authenticated users only)

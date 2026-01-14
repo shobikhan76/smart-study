@@ -11,7 +11,7 @@ const {
   adminDeleteApplication
 } = require('../controllers/applicationController');
 
-const { verifyToken, isAdmin , isTeacher } = require('../middleware/authMiddleware');
+const { verifyToken, isAdmin , isTeacher } = require('../Middleware/authMiddleware');
 
 // User Routes
 router.post('/', verifyToken, createApplication);

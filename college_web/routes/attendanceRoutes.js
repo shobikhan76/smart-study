@@ -8,7 +8,7 @@ const {
   getMyAttendance,
 } = require("../controllers/attendanceController");
 
-const { isAdmin, verifyToken } = require("../middleware/authMiddleware");
+const { isAdmin, verifyToken } = require("../Middleware/authMiddleware");
 const checkRole = require("../Middleware/roleMiddleware");
 
 // ✅ Only teacher or admin can mark attendance

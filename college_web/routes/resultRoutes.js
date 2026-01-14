@@ -6,7 +6,7 @@ const {
   deleteResult,
 } = require('../controllers/resultController');
 
-const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
+const { verifyToken, isAdmin } = require('../Middleware/authMiddleware');
 
 const router = express.Router();
 
